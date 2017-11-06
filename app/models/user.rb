@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   validates :phone_number, :session_token, presence: true
   validates :phone_number, uniqueness: true
-  validates :phone_number, length: { is: 10 }
+
   # validates :password, length: { minimum: 6, allow_nil: true }
 
   # attr_reader :password
