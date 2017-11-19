@@ -1,4 +1,6 @@
 branch-defaults:
+  aws-setup:
+    environment: insiya-api-env
   user-controller:
     environment: null
     group_suffix: null
