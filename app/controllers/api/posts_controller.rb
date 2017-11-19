@@ -2,24 +2,14 @@ class Api::PostsController < ApplicationController
   def index
     @posts = Post.all
 
-    render :index
-  end
-
-  def show
-    @post = Post.find(params[:id])
-
-    if @post
-      render :show
-    else
-      render json: ['Not found'], status: 404
-    end
+    render 'api/posts/index'
   end
 
   def create
     @post = Post.new(post_params)
 
     if @post.save
-      render :show
+      render 'api/posts/show'
     else
       render json: @post.errors.full_messages, status: 422
     end
@@ -29,7 +19,7 @@ class Api::PostsController < ApplicationController
     @post = Post.find(params[:id])
 
     if @post.destroy
-      render :show
+      render 'api/posts/show'
     else
       render json: ['Not found'], status: 404
     end
@@ -38,6 +28,6 @@ class Api::PostsController < ApplicationController
   private
 
   def post_params
-    params.require(:post).permit(:body, :author_id)
+    params.permit(:body, :author_id)
   end
 end
