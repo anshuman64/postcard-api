@@ -8,7 +8,6 @@ Rails.application.routes.draw do
     # 'Posts' routes
     get    'posts',     to: 'posts#index'
     post   'posts',     to: 'posts#create'
-    get    'posts/:id', to: 'posts#show'
     delete 'posts/:id', to: 'posts#destroy'
 
     # 'Likes' routes
