@@ -10,9 +10,9 @@ class Api::LikesController < ApplicationController
   end
 
   def destroy
-    @like = Like.find(params[:id])
+    @like = Like.find_by_user_id_and_post_id(params[:user_id], params[:post_id])
 
-    if @like.destroy
+    if @like && @like.destroy
       render 'api/likes/show'
     else
       render json: ['Not found'], status: 404
