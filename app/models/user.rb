@@ -22,8 +22,8 @@ class User < ApplicationRecord
     dependent:   :destroy
   )
 
-  # after_initialize :ensure_session_token
-  #
+  after_initialize :ensure_session_token
+
   # def self.find_by_credentials(username, password)
   #   user = User.find_by_username(username)
   #   return nil unless user && user.valid_password?(password)
@@ -45,9 +45,9 @@ class User < ApplicationRecord
   #   self.session_token
   # end
   #
-  # private
-  #
-  # def ensure_session_token
-  #   self.session_token ||= SecureRandom.urlsafe_base64(16)
-  # end
+  private
+
+  def ensure_session_token
+    self.session_token ||= SecureRandom.urlsafe_base64(16)
+  end
 end

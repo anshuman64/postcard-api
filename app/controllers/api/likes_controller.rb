@@ -3,17 +3,17 @@ class Api::LikesController < ApplicationController
     @like = Like.new(like_params)
 
     if @like.save
-      render :show
+      render 'api/likes/show'
     else
       render json: @like.errors.full_messages, status: 422
     end
   end
 
   def destroy
-    @like = Like.find(params[:id])
+    @like = Like.find_by_user_id_and_post_id(params[:user_id], params[:post_id])
 
-    if @like.destroy
-      render :show
+    if @like && @like.destroy
+      render 'api/likes/show'
     else
       render json: ['Not found'], status: 404
     end
@@ -22,6 +22,6 @@ class Api::LikesController < ApplicationController
   private
 
   def like_params
-    params.require(:like).permit(:user_id, :post_id)
+    params.permit(:user_id, :post_id)
   end
 end
