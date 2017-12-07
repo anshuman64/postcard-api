@@ -1,6 +1,6 @@
 class Api::UsersController < ApplicationController
   def create
-    firebase_uid = decode_token(params[:firebase_jwt])
+    firebase_uid = decode_token(params[:firebase_jwt])["user_id"]
 
     unless firebase_uid
       render json: ['Invalid JWT'], status: 403 and return

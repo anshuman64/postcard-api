@@ -56,7 +56,7 @@ class FirebaseTokenVerifier
       raise error
     end
 
-    decoded_token
+    decoded_token[0]
   end
 
   def self.decode_jwt_token(firebase_jwt_token, firebase_project_id, public_key)
