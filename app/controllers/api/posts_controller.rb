@@ -47,7 +47,7 @@ class Api::PostsController < ApplicationController
     if @post.destroy
       render 'api/posts/show'
     else
-      render json: ['Not found'], status: 404
+      render json: @post.errors.full_messages, status: 422
     end
   end
 end
