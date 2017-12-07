@@ -46,9 +46,11 @@ class FirebaseTokenVerifier
 
     # Validate signature
     # For this we need to decode one more time, but now with cert public key
-    # More info: https://github.com/jwt/ruby-jwt/issues/216
 
-    decoded_token, error = FirebaseTokenVerifier.decode_jwt_token(id_token, @firebase_project_id, public_key)
+    cert_string = valid_public_keys[kid]
+    cert = OpenSSL::X509::Certificate.new(cert_string)
+
+    decoded_token, error = FirebaseTokenVerifier.decode_jwt_token(id_token, @firebase_project_id, cert.public_key)
 
     if decoded_token.nil?
       raise error
@@ -58,9 +60,7 @@ class FirebaseTokenVerifier
   end
 
   def self.decode_jwt_token(firebase_jwt_token, firebase_project_id, public_key)
-    # Now we decode JWT token and validate
-    # Validation rules:
-    # https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_a_third-party_jwt_library
+    # Validation rules: https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_a_third-party_jwt_library
 
     custom_options = {
       verify_iat: true,
@@ -77,19 +77,14 @@ class FirebaseTokenVerifier
     begin
       decoded_token = JWT.decode(firebase_jwt_token, public_key, !public_key.nil?, custom_options)
     rescue JWT::ExpiredSignature
-      # Handle Expiration Time Claim: bad 'exp'
       return nil, "Invalid access token. 'Expiration time' (exp) must be in the future."
     rescue JWT::InvalidIatError
-      # Handle Issued At Claim: bad 'iat'
       return nil, "Invalid access token. 'Issued-at time' (iat) must be in the past."
     rescue JWT::InvalidAudError
-      # Handle Audience Claim: bad 'aud'
       return nil, "Invalid access token. 'Audience' (aud) must be your Firebase project ID, the unique identifier for your Firebase project."
     rescue JWT::InvalidIssuerError
-      # Handle Issuer Claim: bad 'iss'
       return nil, "Invalid access token. 'Issuer' (iss) Must be 'https://securetoken.google.com/<projectId>', where <projectId> is your Firebase project ID."
     rescue JWT::VerificationError
-      # Handle Signature verification fail
       return nil, "Invalid access token. Signature verification failed."
     end
 
