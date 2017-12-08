@@ -3,15 +3,17 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     # 'Users' routes
-    post   'users',          to: 'users#create'
+    post   'users',          to: 'users#create_user'
 
     # 'Posts' routes
-    get    'posts',          to: 'posts#index'
-    post   'posts',          to: 'posts#create'
-    delete 'posts/:id',      to: 'posts#destroy'
+    get    'posts',          to: 'posts#get_all_posts'
+    get    'posts/authored', to: 'posts#get_authored_posts'
+    get    'posts/liked',    to: 'posts#get_liked_posts'
+    post   'posts',          to: 'posts#create_post'
+    delete 'posts/:id',      to: 'posts#destroy_post'
 
     # 'Likes' routes
-    post   'likes',          to: 'likes#create'
-    delete 'likes/:post_id', to: 'likes#destroy'
+    post   'likes',          to: 'likes#create_like'
+    delete 'likes/:post_id', to: 'likes#destroy_like'
   end
 end

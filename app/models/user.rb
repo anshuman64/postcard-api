@@ -17,4 +17,10 @@ class User < ApplicationRecord
     primary_key: :id,
     dependent:   :destroy
   )
+
+  has_many(
+    :liked_posts,
+    through: :likes,
+    source:  :post
+  )
 end

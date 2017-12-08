@@ -4,7 +4,7 @@ require 'net/http'
 class FirebaseTokenVerifier
   VALID_JWT_PUBLIC_KEYS_RESPONSE_CACHE_KEY = 'firebase_phone_jwt_public_keys_cache_key'
   JWT_ALGORITHM                            = 'RS256'
-  HEADER_PREFIX                            = 'Bearer '
+  HEADER_PREFIX                            = 'Bearer '  # Don't remove this space
 
   def initialize(firebase_project_id)
     @firebase_project_id = firebase_project_id
@@ -117,8 +117,8 @@ class FirebaseTokenVerifier
       end
 
       valid_public_keys = JSON.parse(response.body)
-      cc                = response['cache-control'] # Format example: Cache-Control: public, max-age=24442, must-revalidate, no-transform
-      max_age           = cc[/max-age=(\d+?),/m, 1] # Get something between 'max-age=' and ','
+      cc                = response['cache-control']   # Format example: Cache-Control: public, max-age=24442, must-revalidate, no-transform
+      max_age           = cc[/max-age=(\d+?),/m, 1]   # Get something between 'max-age=' and ','
 
       Rails.cache.write(VALID_JWT_PUBLIC_KEYS_RESPONSE_CACHE_KEY, valid_public_keys, :expires_in => max_age.to_i)
     end
