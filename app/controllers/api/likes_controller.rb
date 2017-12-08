@@ -1,6 +1,12 @@
 class Api::LikesController < ApplicationController
   def create
-    @like = Like.new(like_params)
+    requester = decode_token_and_find_user(request.headers["Authorization"])
+
+    unless requester
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    @like = Like.new({ post_id: params[:post_id], user_id: requester.id })
 
     if @like.save
       render 'api/likes/show'
@@ -10,18 +16,26 @@ class Api::LikesController < ApplicationController
   end
 
   def destroy
-    @like = Like.find_by_user_id_and_post_id(params[:user_id], params[:post_id])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
-    if @like && @like.destroy
+    unless requester
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    @like = Like.find_by_user_id_and_post_id(requester.id, params[:post_id])
+
+    unless @like
+      render json: ['Not found'], status: 404 and return
+    end
+
+    unless @like.user == requester
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    if @like.destroy
       render 'api/likes/show'
     else
-      render json: ['Not found'], status: 404
+      render json: @like.errors.full_messages, status: 422
     end
-  end
-
-  private
-
-  def like_params
-    params.permit(:user_id, :post_id)
   end
 end

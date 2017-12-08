@@ -31,6 +31,11 @@ gem 'bcrypt', '~> 3.1.7'
 # Taking out of development to make deployment to AWS Elastic Beanstalk work
 gem 'listen', '>= 3.0.5', '< 3.2'
 
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+gem 'jwt', '2.1.0'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
@@ -54,6 +59,3 @@ group :development do
   gem 'binding_of_caller', '0.7.3'
   gem 'better_errors', '2.4.0'
 end
-
-# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
