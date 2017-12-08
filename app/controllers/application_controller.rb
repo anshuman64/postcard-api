@@ -12,7 +12,7 @@ class ApplicationController < ActionController::Base
   end
 
   define_method(:decode_token_and_find_user) do |firebase_jwt|
-    firebase_uid = verifier.decode(firebase_jwt, nil)["user_id"]
+    firebase_uid = verifier.decode(firebase_jwt, nil)['user_id']
 
     User.find_by_firebase_uid(firebase_uid)
   end
