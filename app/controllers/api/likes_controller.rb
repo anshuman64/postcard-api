@@ -1,6 +1,6 @@
 class Api::LikesController < ApplicationController
   def create
-    requester = decode_token_and_find_user(params[:firebase_jwt])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -16,7 +16,7 @@ class Api::LikesController < ApplicationController
   end
 
   def destroy
-    requester = decode_token_and_find_user(params[:firebase_jwt])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return

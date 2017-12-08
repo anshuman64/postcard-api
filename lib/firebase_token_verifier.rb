@@ -4,6 +4,7 @@ require 'net/http'
 class FirebaseTokenVerifier
   VALID_JWT_PUBLIC_KEYS_RESPONSE_CACHE_KEY = 'firebase_phone_jwt_public_keys_cache_key'
   JWT_ALGORITHM                            = 'RS256'
+  HEADER_PREFIX                            = 'Bearer '
 
   def initialize(firebase_project_id)
     @firebase_project_id = firebase_project_id
@@ -62,6 +63,12 @@ class FirebaseTokenVerifier
   def self.decode_jwt_token(firebase_jwt_token, firebase_project_id, public_key)
     # Validation rules: https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_a_third-party_jwt_library
 
+    unless firebase_jwt_token.starts_with?(HEADER_PREFIX)
+      raise "Authorization header not properly configured."
+    end
+
+    parsed_token = firebase_jwt_token.gsub(HEADER_PREFIX, '')
+
     custom_options = {
       verify_iat: true,
       verify_aud: true,
@@ -75,7 +82,7 @@ class FirebaseTokenVerifier
     end
 
     begin
-      decoded_token = JWT.decode(firebase_jwt_token, public_key, !public_key.nil?, custom_options)
+      decoded_token = JWT.decode(parsed_token, public_key, !public_key.nil?, custom_options)
     rescue JWT::ExpiredSignature
       return nil, "Invalid access token. 'Expiration time' (exp) must be in the future."
     rescue JWT::InvalidIatError

@@ -1,6 +1,6 @@
 class Api::PostsController < ApplicationController
   def index
-    requester = decode_token_and_find_user(params[:firebase_jwt])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -12,7 +12,7 @@ class Api::PostsController < ApplicationController
   end
 
   def create
-    requester = decode_token_and_find_user(params[:firebase_jwt])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -28,7 +28,7 @@ class Api::PostsController < ApplicationController
   end
 
   def destroy
-    requester = decode_token_and_find_user(params[:firebase_jwt])
+    requester = decode_token_and_find_user(request.headers["Authorization"])
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return
