@@ -63,7 +63,7 @@ class FirebaseTokenVerifier
   def self.decode_jwt_token(firebase_jwt_token, firebase_project_id, public_key)
     # Validation rules: https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_a_third-party_jwt_library
 
-    unless firebase_jwt_token.starts_with?(HEADER_PREFIX)
+    unless firebase_jwt_token && firebase_jwt_token.starts_with?(HEADER_PREFIX)
       raise "Authorization header not properly configured."
     end
 
