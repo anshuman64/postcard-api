@@ -1,4 +1,14 @@
 class Api::UsersController < ApplicationController
+  def find_user
+    @user = decode_token_and_find_user(request.headers['Authorization'])
+
+    if @user
+      render 'api/users/show'
+    else
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+  end
+
   def create_user
     firebase_uid = decode_token(request.headers['Authorization'])['user_id']
 
