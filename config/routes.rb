@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   namespace :api, defaults: { format: :json } do
     # 'Users' routes
-    get    'users',          to: 'user#find_user'
+    get    'users',          to: 'users#find_user'
     post   'users',          to: 'users#create_user'
 
     # 'Posts' routes
