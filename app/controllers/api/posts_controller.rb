@@ -7,7 +7,7 @@ class Api::PostsController < ApplicationController
     end
 
     limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || Post.count
+    start_at = params[:start_at]  || Post.last.id + 1
 
     @posts = Post.where('id < ?', start_at).last(limit).reverse
 
@@ -22,7 +22,7 @@ class Api::PostsController < ApplicationController
     end
 
     limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || requester.posts.count
+    start_at = params[:start_at]  || requester.posts.last.id + 1
 
     @posts = requester.posts.where('id < ?', start_at).last(limit).reverse
 
@@ -37,7 +37,7 @@ class Api::PostsController < ApplicationController
     end
 
     limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || requester.liked_posts.count
+    start_at = params[:start_at]  || requester.liked_posts.last.id + 1
 
     @posts = requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
