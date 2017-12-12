@@ -6,10 +6,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    limit  = params[:limit]  || 10
-    offset = params[:offset] || 0
+    limit    = params[:limit]     || 10
+    start_at = params[:start_at]  || Post.count
 
-    @posts = Post.offset(offset).last(limit).reverse
+    @posts = Post.where('id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
@@ -21,10 +21,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    limit  = params[:limit]  || 10
-    offset = params[:offset] || 0
+    limit    = params[:limit]     || 10
+    start_at = params[:start_at]  || requester.posts.count
 
-    @posts = requester.posts.offset(offset).last(limit).reverse
+    @posts = requester.posts.where('id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
@@ -36,10 +36,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    limit  = params[:limit]  || 10
-    offset = params[:offset] || 0
+    limit    = params[:limit]     || 10
+    start_at = params[:start_at]  || requester.liked_posts.count
 
-    @posts = requester.liked_posts.offset(offset).last(limit).reverse
+    @posts = requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
