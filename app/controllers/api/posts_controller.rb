@@ -1,8 +1,8 @@
 class Api::PostsController < ApplicationController
   def get_all_posts
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless requester
+    unless @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
@@ -15,43 +15,43 @@ class Api::PostsController < ApplicationController
   end
 
   def get_authored_posts
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless requester
+    unless @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
     limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || requester.posts.last.id + 1
+    start_at = params[:start_at]  || @requester.posts.last.id + 1
 
-    @posts = requester.posts.where('id < ?', start_at).last(limit).reverse
+    @posts = @requester.posts.where('id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
 
   def get_liked_posts
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless requester
+    unless @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
     limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || requester.liked_posts.last.id + 1
+    start_at = params[:start_at]  || @requester.liked_posts.last.id + 1
 
-    @posts = requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    @posts = @requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
 
   def create_post
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless requester
+    unless @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    @post = Post.new({ body: params[:body], author_id: requester.id })
+    @post = Post.new({ body: params[:body], author_id: @requester.id })
 
     if @post.save
       render 'api/posts/show'
@@ -61,9 +61,9 @@ class Api::PostsController < ApplicationController
   end
 
   def destroy_post
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless requester
+    unless @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
@@ -73,7 +73,7 @@ class Api::PostsController < ApplicationController
       render json: ['Not found'], status: 404 and return
     end
 
-    unless @post.author == requester
+    unless @post.author == @requester
       render json: ['Unauthorized request'], status: 403 and return
     end
 
