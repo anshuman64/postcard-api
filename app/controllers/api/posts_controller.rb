@@ -1,4 +1,7 @@
 class Api::PostsController < ApplicationController
+  DEFAULT_LIMIT    = 10
+  DEFAULT_START_AT = 1
+
   def get_all_posts
     @requester = decode_token_and_find_user(request.headers['Authorization'])
 
@@ -6,13 +9,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    default_start_at = 1
-    unless !Post.last
-      default_start_at = Post.last.id + 1
-    end
+    most_recent_post = Post.last
 
-    limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || default_start_at
+    limit    = params[:limit]    || DEFAULT_LIMIT
+    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     @posts = Post.where('id < ?', start_at).last(limit).reverse
 
@@ -26,13 +26,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    default_start_at = 1
-    unless !@requester.posts.last
-      default_start_at = @requester.posts.last.id + 1
-    end
+    most_recent_post = @requester.posts.last
 
-    limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || default_start_at
+    limit    = params[:limit]     || DEFAULT_LIMIT
+    start_at = params[:start_at]  || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     @posts = @requester.posts.where('id < ?', start_at).last(limit).reverse
 
@@ -46,13 +43,10 @@ class Api::PostsController < ApplicationController
       render json: ['Unauthorized request'], status: 403 and return
     end
 
-    default_start_at = 1
-    unless !@requester.liked_posts.last
-      default_start_at = @requester.liked_posts.last.id + 1
-    end
+    most_recent_post = @requester.liked_posts.last
 
-    limit    = params[:limit]     || 10
-    start_at = params[:start_at]  || default_start_at
+    limit    = params[:limit]     || DEFAULT_LIMIT
+    start_at = params[:start_at]  || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     @posts = @requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
