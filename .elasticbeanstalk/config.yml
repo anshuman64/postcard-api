@@ -1,3 +1,10 @@
+branch-defaults:
+  master:
+    environment: insiya-test
+environment-defaults:
+  insiya-test:
+    branch: null
+    repository: null
 global:
   application_name: insiya-api
   branch: null
