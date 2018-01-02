@@ -8,12 +8,22 @@ class ApplicationController < ActionController::Base
   @@verifier = FirebaseTokenVerifier.new(FIREBASE_PROJECT_ID)
 
   def decode_token(firebase_jwt)
-    @@verifier.decode(firebase_jwt, nil)
+    decoded_firebase_jwt, error = @@verifier.decode(firebase_jwt, nil)
+
+    if decoded_firebase_jwt.nil?
+      return nil, error
+    end
+
+    return decoded_firebase_jwt['user_id'], nil
   end
 
   def decode_token_and_find_user(firebase_jwt)
-    firebase_uid = @@verifier.decode(firebase_jwt, nil)['user_id']
+    decoded_firebase_jwt, error = @@verifier.decode(firebase_jwt, nil)
 
-    User.find_by_firebase_uid(firebase_uid)
+    if decoded_firebase_jwt.nil?
+      return nil, error
+    end
+
+    return User.find_by_firebase_uid(decoded_firebase_jwt['user_id']), nil
   end
 end

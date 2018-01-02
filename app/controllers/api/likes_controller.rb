@@ -1,6 +1,10 @@
 class Api::LikesController < ApplicationController
   def create_like
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -16,7 +20,11 @@ class Api::LikesController < ApplicationController
   end
 
   def destroy_like
-    requester = decode_token_and_find_user(request.headers['Authorization'])
+    requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless requester
       render json: ['Unauthorized request'], status: 403 and return

@@ -1,6 +1,10 @@
 class Api::UsersController < ApplicationController
   def find_user
-    @user = decode_token_and_find_user(request.headers['Authorization'])
+    @user, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     if @user
       render 'api/users/show'
@@ -10,7 +14,11 @@ class Api::UsersController < ApplicationController
   end
 
   def create_user
-    firebase_uid = decode_token(request.headers['Authorization'])['user_id']
+    firebase_uid, error = decode_token(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless firebase_uid
       render json: ['Invalid JWT'], status: 403 and return

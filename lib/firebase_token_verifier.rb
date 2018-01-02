@@ -14,7 +14,7 @@ class FirebaseTokenVerifier
     decoded_token, error = FirebaseTokenVerifier.decode_jwt_token(id_token, @firebase_project_id, nil)
 
     unless error.nil?
-      raise error
+      return nil, error
     end
 
     payload = decoded_token[0]
@@ -25,14 +25,18 @@ class FirebaseTokenVerifier
     alg = headers['alg']
 
     unless alg == JWT_ALGORITHM
-      raise "Invalid access token 'alg' header (#{alg}). Must be '#{JWT_ALGORITHM}'."
+      return nil, "Invalid access token 'alg' header (#{alg}). Must be '#{JWT_ALGORITHM}'."
     end
 
-    valid_public_keys = FirebaseTokenVerifier.retrieve_and_cache_jwt_valid_public_keys
-    kid               = headers['kid']
+    valid_public_keys, error = FirebaseTokenVerifier.retrieve_and_cache_jwt_valid_public_keys
+    kid                      = headers['kid']
+
+    unless error.nil?
+      return nil, error
+    end
 
     unless valid_public_keys.keys.include?(kid)
-      raise "Invalid access token 'kid' header, do not correspond to valid public keys."
+      return nil, "Invalid access token 'kid' header, do not correspond to valid public keys."
     end
 
     # Validate payload
@@ -42,7 +46,7 @@ class FirebaseTokenVerifier
     sub = payload['sub']
 
     if sub.nil? || sub.empty?
-      raise "Invalid access token. 'Subject' (sub) must be a non-empty string."
+      return nil, "Invalid access token. 'Subject' (sub) must be a non-empty string."
     end
 
     # Validate signature
@@ -54,17 +58,17 @@ class FirebaseTokenVerifier
     decoded_token, error = FirebaseTokenVerifier.decode_jwt_token(id_token, @firebase_project_id, cert.public_key)
 
     if decoded_token.nil?
-      raise error
+      return nil, error
     end
 
-    decoded_token[0]
+    return decoded_token[0], nil
   end
 
   def self.decode_jwt_token(firebase_jwt_token, firebase_project_id, public_key)
     # Validation rules: https://firebase.google.com/docs/auth/admin/verify-id-tokens#verify_id_tokens_using_a_third-party_jwt_library
 
     unless firebase_jwt_token && firebase_jwt_token.starts_with?(HEADER_PREFIX)
-      raise "Authorization header not properly configured."
+      return nil, "Authorization header not properly configured."
     end
 
     parsed_token = firebase_jwt_token.gsub(HEADER_PREFIX, '')
@@ -113,7 +117,7 @@ class FirebaseTokenVerifier
       response      = https.request(req)
 
       unless response.code == '200'
-        raise "Something went wrong: can't obtain valid JWT public keys from Google."
+        return nil, "Something went wrong: can't obtain valid JWT public keys from Google."
       end
 
       valid_public_keys = JSON.parse(response.body)
@@ -123,6 +127,6 @@ class FirebaseTokenVerifier
       Rails.cache.write(VALID_JWT_PUBLIC_KEYS_RESPONSE_CACHE_KEY, valid_public_keys, :expires_in => max_age.to_i)
     end
 
-    valid_public_keys
+    return valid_public_keys, nil
   end
 end
