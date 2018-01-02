@@ -3,7 +3,11 @@ class Api::PostsController < ApplicationController
   DEFAULT_START_AT = 1
 
   def get_all_posts
-    @requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless @requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -20,7 +24,11 @@ class Api::PostsController < ApplicationController
   end
 
   def get_authored_posts
-    @requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless @requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -37,7 +45,11 @@ class Api::PostsController < ApplicationController
   end
 
   def get_liked_posts
-    @requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless @requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -54,7 +66,11 @@ class Api::PostsController < ApplicationController
   end
 
   def create_post
-    @requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless @requester
       render json: ['Unauthorized request'], status: 403 and return
@@ -70,7 +86,11 @@ class Api::PostsController < ApplicationController
   end
 
   def destroy_post
-    @requester = decode_token_and_find_user(request.headers['Authorization'])
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
 
     unless @requester
       render json: ['Unauthorized request'], status: 403 and return
