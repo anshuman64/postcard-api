@@ -36,6 +36,8 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'jwt', '2.1.0'
 
+gem 'aws-sdk'
+
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
 
