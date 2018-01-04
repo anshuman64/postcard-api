@@ -7,6 +7,12 @@ class Api::UsersController < ApplicationController
     end
 
     if @user
+      @aws_identity_id, @aws_token = get_aws_token(@user['id'], request.headers['Authorization'])
+
+      if @aws_identity_id.nil? || @aws_token.nil?
+        render json: ['Unauthorized request'], status: 403 and return
+      end
+
       render 'api/users/show'
     else
       render json: ['Unauthorized request'], status: 403 and return
@@ -26,7 +32,15 @@ class Api::UsersController < ApplicationController
 
     @user = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid })
 
+
+
     if @user.save
+      @aws_identity_id, @aws_token = get_aws_token(@user['id'], request.headers['Authorization'])
+
+      if @aws_identity_id.nil? || @aws_token.nil?
+        render json: ['Unauthorized request'], status: 403 and return
+      end
+
       render 'api/users/show'
     else
       render json: @user.errors.full_messages, status: 422
