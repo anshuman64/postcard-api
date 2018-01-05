@@ -28,4 +28,24 @@ class Api::UsersController < ApplicationController
       render json: @user.errors.full_messages, status: 422
     end
   end
+
+  def edit_user
+    @user, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
+
+    unless @user
+      render json: ['User not found'], status: 404 and return
+    end
+
+    @user.update(params)
+
+    if @user.save
+      render 'api/users/show'
+    else
+      render json: @user.errors.full_messages, status: 422
+    end
+  end
 end
