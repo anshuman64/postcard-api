@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20171123223926) do
+ActiveRecord::Schema.define(version: 20180105054614) do
 
   create_table "likes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "user_id", null: false
@@ -30,12 +30,17 @@ ActiveRecord::Schema.define(version: 20171123223926) do
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
-    t.string "phone_number", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "firebase_uid", null: false
+    t.string "avatar_url"
+    t.string "username"
+    t.string "phone_number"
+    t.string "email"
+    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["firebase_uid"], name: "index_users_on_firebase_uid", unique: true
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
+    t.index ["username"], name: "index_users_on_username", unique: true
   end
 
 end
