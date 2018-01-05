@@ -1,1 +1,1 @@
-json.(@user, :id, :phone_number, :firebase_uid, :created_at, :updated_at)
+json.(@user, :id, :firebase_uid, :username, :phone_number, :email, :avatar_url, :created_at, :updated_at)
