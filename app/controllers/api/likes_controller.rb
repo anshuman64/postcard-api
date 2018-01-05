@@ -7,7 +7,7 @@ class Api::LikesController < ApplicationController
     end
 
     unless requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     @like = Like.new({ post_id: params[:post_id], user_id: requester.id })
@@ -27,13 +27,13 @@ class Api::LikesController < ApplicationController
     end
 
     unless requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     @like = Like.find_by_user_id_and_post_id(requester.id, params[:post_id])
 
     unless @like
-      render json: ['Not found'], status: 404 and return
+      render json: ['Like not found'], status: 404 and return
     end
 
     unless @like.user == requester

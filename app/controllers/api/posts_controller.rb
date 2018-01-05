@@ -10,7 +10,7 @@ class Api::PostsController < ApplicationController
     end
 
     unless @requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     most_recent_post = Post.last
@@ -31,13 +31,13 @@ class Api::PostsController < ApplicationController
     end
 
     unless @requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     most_recent_post = @requester.posts.last
 
-    limit    = params[:limit]     || DEFAULT_LIMIT
-    start_at = params[:start_at]  || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+    limit    = params[:limit]    || DEFAULT_LIMIT
+    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     @posts = @requester.posts.where('id < ?', start_at).last(limit).reverse
 
@@ -52,13 +52,13 @@ class Api::PostsController < ApplicationController
     end
 
     unless @requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     most_recent_post = @requester.liked_posts.last
 
-    limit    = params[:limit]     || DEFAULT_LIMIT
-    start_at = params[:start_at]  || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+    limit    = params[:limit]    || DEFAULT_LIMIT
+    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     @posts = @requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
@@ -73,7 +73,7 @@ class Api::PostsController < ApplicationController
     end
 
     unless @requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     @post = Post.new({ body: params[:body], author_id: @requester.id })
@@ -93,13 +93,13 @@ class Api::PostsController < ApplicationController
     end
 
     unless @requester
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['Requester not found'], status: 404 and return
     end
 
     @post = Post.find(params[:id])
 
     unless @post
-      render json: ['Not found'], status: 404 and return
+      render json: ['Post not found'], status: 404 and return
     end
 
     unless @post.author == @requester
