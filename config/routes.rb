@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     # 'Users' routes
     get    'users',          to: 'users#find_user'
     post   'users',          to: 'users#create_user'
+    put    'users',          to: 'users#edit_user'
 
     # 'Posts' routes
     get    'posts',          to: 'posts#get_all_posts'

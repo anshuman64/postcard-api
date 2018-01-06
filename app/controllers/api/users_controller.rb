@@ -9,7 +9,7 @@ class Api::UsersController < ApplicationController
     if @user
       render 'api/users/show'
     else
-      render json: ['Unauthorized request'], status: 403 and return
+      render json: ['User not found'], status: 404 and return
     end
   end
 
@@ -20,11 +20,27 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    unless firebase_uid
-      render json: ['Invalid JWT'], status: 403 and return
+    @user = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid })
+
+    if @user.save
+      render 'api/users/show'
+    else
+      render json: @user.errors.full_messages, status: 422
+    end
+  end
+
+  def edit_user
+    @user, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
     end
 
-    @user = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid })
+    unless @user
+      render json: ['User not found'], status: 404 and return
+    end
+
+    @user.update(params)
 
     if @user.save
       render 'api/users/show'

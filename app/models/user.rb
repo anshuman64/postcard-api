@@ -1,6 +1,6 @@
 class User < ApplicationRecord
-  validates :phone_number, :firebase_uid, presence: true
-  validates :phone_number, uniqueness: true
+  validates :firebase_uid, presence: true
+  validates :firebase_uid, :username, :email, :phone_number, uniqueness: true
 
   has_many(
     :posts,
