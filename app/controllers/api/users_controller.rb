@@ -40,6 +40,7 @@ class Api::UsersController < ApplicationController
       render json: ['User not found'], status: 404 and return
     end
 
+    # Need to add proper error handling if the user does not update
     @user.update(params)
 
     if @user.save

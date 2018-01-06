@@ -34,6 +34,10 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
+    if params[:user_id]
+      @requester = User.find(params[:user_id])
+    end
+
     most_recent_post = @requester.posts.last
 
     limit    = params[:limit]    || DEFAULT_LIMIT
@@ -53,6 +57,11 @@ class Api::PostsController < ApplicationController
 
     unless @requester
       render json: ['Requester not found'], status: 404 and return
+    end
+
+    # Need to add proper error handling if user does not exist
+    if params[:user_id]
+      @requester = User.find(params[:user_id])
     end
 
     most_recent_post = @requester.liked_posts.last
