@@ -76,7 +76,7 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    @post = Post.new({ body: params[:body], author_id: @requester.id })
+    @post = Post.new({ body: params[:body], author_id: @requester.id, image_url: params[:image_url] })
 
     if @post.save
       render 'api/posts/show'

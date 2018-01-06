@@ -1,5 +1,13 @@
 class Post < ApplicationRecord
-  validates :body, :author_id, presence: true
+  validates :author_id, presence: true
+
+  validate :body_or_image_url
+
+  def body_or_image_url
+    if body.blank? && image_url.blank?
+      render json: ['Unprocessable Entity'], status: 422 and return
+    end
+  end
 
   belongs_to(
     :author,
