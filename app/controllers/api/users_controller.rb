@@ -40,8 +40,22 @@ class Api::UsersController < ApplicationController
       render json: ['User not found'], status: 404 and return
     end
 
-    # Need to add proper error handling if the user does not update
-    @user.update(params)
+    # Need to refactor this and add proper error handling if the user does not update
+    if (params[:phone_number])
+      @user.update({ phone_number: params[:phone_number] })
+    end
+
+    if (params[:email])
+      @user.update({ email: params[:email] })
+    end
+
+    if (params[:username])
+      @user.update({ username: params[:username] })
+    end
+
+    if (params[:avatar_url])
+      @user.update({ avatar_url: params[:avatar_url] })
+    end
 
     if @user.save
       render 'api/users/show'

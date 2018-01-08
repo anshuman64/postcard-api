@@ -1,6 +1,8 @@
 class User < ApplicationRecord
   validates :firebase_uid, presence: true
-  validates :firebase_uid, :username, :email, :phone_number, uniqueness: true
+  validates :firebase_uid, :username, :email, :phone_number, uniqueness: {allow_blank: true}
+  #TODO: add length and character checks on username
+  #TODO: adjust validations for case sensitivity, spaces, characters, etc.
 
   has_many(
     :posts,
