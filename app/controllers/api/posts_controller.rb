@@ -35,15 +35,17 @@ class Api::PostsController < ApplicationController
     end
 
     if params[:user_id]
-      @requester = User.find(params[:user_id])
+      user = User.find(params[:user_id])
+    else
+      user = @requester
     end
 
-    most_recent_post = @requester.posts.last
+    most_recent_post = user.posts.last
 
     limit    = params[:limit]    || DEFAULT_LIMIT
     start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    @posts = @requester.posts.where('id < ?', start_at).last(limit).reverse
+    @posts = user.posts.where('id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
@@ -61,15 +63,17 @@ class Api::PostsController < ApplicationController
 
     # Need to add proper error handling if user does not exist
     if params[:user_id]
-      @requester = User.find(params[:user_id])
+      user = User.find(params[:user_id])
+    else
+      user = @requester
     end
 
-    most_recent_post = @requester.liked_posts.last
+    most_recent_post = user.liked_posts.last
 
     limit    = params[:limit]    || DEFAULT_LIMIT
     start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    @posts = @requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    @posts = user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
