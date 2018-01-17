@@ -78,6 +78,30 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
+  def get_followed_posts
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
+
+    unless @requester
+      render json: ['Requester not found'], status: 404 and return
+    end
+
+    # most_recent_post = @requester.followed_posts.last
+    #
+    # limit    = params[:limit]    || DEFAULT_LIMIT
+    # start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+
+    followees = @requester.followees.posts
+    @posts = Post.where('author_id == ?', followees).last(10).reverse
+
+    # user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+
+    render 'api/posts/index'
+  end
+
   def create_post
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
