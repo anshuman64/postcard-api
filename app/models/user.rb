@@ -21,8 +21,36 @@ class User < ApplicationRecord
   )
 
   has_many(
+    :follows_as_follower,
+    class_name:  :Follow,
+    foreign_key: :follower_id,
+    primary_key: :id,
+    dependent:   :destroy
+  )
+
+  has_many(
+    :follows_as_followee,
+    class_name:  :Follow,
+    foreign_key: :followee_id,
+    primary_key: :id,
+    dependent:   :destroy
+  )
+
+  has_many(
     :liked_posts,
     through: :likes,
     source:  :post
+  )
+
+  has_many(
+    :followers,
+    through: :follows_as_follower,
+    source:  :user
+  )
+
+  has_many(
+    :followees,
+    through: :follows_as_followee,
+    source:  :user
   )
 end
