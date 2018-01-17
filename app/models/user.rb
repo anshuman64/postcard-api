@@ -44,13 +44,13 @@ class User < ApplicationRecord
 
   has_many(
     :followers,
-    through: :follows_as_follower,
+    through: :follows_as_followee,
     source:  :follower
   )
 
   has_many(
     :followees,
-    through: :follows_as_followee,
+    through: :follows_as_follower,
     source:  :followee
   )
 end

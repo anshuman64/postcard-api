@@ -10,12 +10,12 @@ class Api::FollowsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    @follower = Follow.new({ followee_id: params[:followee_id], follower_id: requester.id })
+    @follow = Follow.new({ followee_id: params[:followee_id], follower_id: requester.id })
 
-    if @follower.save
+    if @follow.save
       render 'api/follows/show'
     else
-      render json: @follower.errors.full_messages, status: 422
+      render json: @follow.errors.full_messages, status: 422
     end
   end
 
