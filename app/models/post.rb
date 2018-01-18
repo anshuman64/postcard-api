@@ -1,14 +1,12 @@
 class Post < ApplicationRecord
   validates :author_id, presence: true
+  validate :body_or_image_url
 
-  # TODO: add validation to check for empty body and empty image
-  # validate :body_or_image_url
-  #
-  # def body_or_image_url
-  #   if body.blank? && image_url.blank?
-  #     render json: ['Unprocessable Entity'], status: 422 and return
-  #   end
-  # end
+  def body_or_image_url
+    if body.blank? and image_url.blank?
+      errors.add :base, 'Require post body or image_url'
+    end
+  end
 
   belongs_to(
     :author,
