@@ -27,11 +27,11 @@ development:
 test:
   adapter: mysql2
   encoding: utf8
-  database: <%= ENV['RDS_DB_NAME'] %>
-  username: <%= ENV['RDS_USERNAME'] %>
-  password: <%= ENV['RDS_PASSWORD'] %>
-  host: <%= ENV['RDS_HOSTNAME'] %>
-  port: <%= ENV['RDS_PORT'] %>
+  database: <%= ENV['RDS_TEST_DB_NAME'] %>
+  username: <%= ENV['RDS_TEST_USERNAME'] %>
+  password: <%= ENV['RDS_TEST_PASSWORD'] %>
+  host: <%= ENV['RDS_TEST_HOSTNAME'] %>
+  port: <%= ENV['RDS_TEST_PORT'] %>
 
 # As with config/secrets.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
