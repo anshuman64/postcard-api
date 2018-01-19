@@ -1,6 +1,6 @@
 require 'firebase_token_verifier'
 
-class ApplicationController < ActionController::Base
+class ApplicationController < ActionController::API
   FIREBASE_PROJECT_ID = 'insiya-mobile'
 
   @@verifier = FirebaseTokenVerifier.new(FIREBASE_PROJECT_ID)
