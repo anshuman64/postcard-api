@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   validates :firebase_uid, presence: true
   validates :firebase_uid, :username, :email, :phone_number, uniqueness: {allow_blank: true, case_sensitive: false}
-  validates :username, length: {minimum: 3, maximum: 12}
+  validates :username, length: {allow_blank: true, minimum: 3, maximum: 12}
 
   has_many(
     :posts,
