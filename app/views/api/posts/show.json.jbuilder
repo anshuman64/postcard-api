@@ -4,7 +4,7 @@ json.num_likes @post.likes.count
 json.is_liked_by_user  @post.likes.where('user_id = ?', @requester.id).present?
 
 json.num_flags @post.flags.count
-json.is_flagged_by_user  @post.flag.where('user_id = ?', @requester.id).present?
+json.is_flagged_by_user  @post.flags.where('user_id = ?', @requester.id).present?
 
 author = User.find(@post.author_id)
 json.author_username author.username

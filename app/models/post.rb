@@ -22,4 +22,12 @@ class Post < ApplicationRecord
     primary_key: :id,
     dependent:   :destroy
   )
+
+  has_many(
+    :flags,
+    class_name:  :Flag,
+    foreign_key: :post_id,
+    primary_key: :id,
+    dependent:   :destroy
+  )
 end
