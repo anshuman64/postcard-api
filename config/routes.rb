@@ -20,6 +20,10 @@ Rails.application.routes.draw do
     # 'Likes' routes
     post   'likes',                   to: 'likes#create_like'
     delete 'likes/:post_id',          to: 'likes#destroy_like'
+    
+    # 'Flags' routes
+    post   'flags',                   to: 'flags#create_flag'
+    delete 'flags/:post_id',          to: 'flags#destroy_flag'
 
     # 'Follows' routes
     post   'follows',                 to: 'follows#create_follow'
