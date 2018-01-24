@@ -40,12 +40,16 @@ class Api::UsersController < ApplicationController
       render json: ['User not found'], status: 404 and return
     end
 
-    @user.update(params)
-
-    if @user.save
+    if @user.update(user_params)
       render 'api/users/show'
     else
       render json: @user.errors.full_messages, status: 422
     end
+  end
+
+  private
+
+  def user_params
+    params.permit(:phone_number, :email, :username, :avatar_url)
   end
 end

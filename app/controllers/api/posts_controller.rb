@@ -34,12 +34,22 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    most_recent_post = @requester.posts.last
+    if params[:user_id]
+      user = User.find(params[:user_id])
+    else
+      user = @requester
+    end
+
+    unless user
+      render json: ['User not found'], status: 404 and return
+    end
+
+    most_recent_post = user.posts.last
 
     limit    = params[:limit]    || DEFAULT_LIMIT
     start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    @posts = @requester.posts.where('id < ?', start_at).last(limit).reverse
+    @posts = user.posts.where('id < ?', start_at).last(limit).reverse
 
     render 'api/posts/index'
   end
@@ -55,12 +65,43 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    most_recent_post = @requester.liked_posts.last
+    if params[:user_id]
+      user = User.find(params[:user_id])
+    else
+      user = @requester
+    end
+
+    unless user
+      render json: ['User not found'], status: 404 and return
+    end
+
+    most_recent_post = user.liked_posts.last
 
     limit    = params[:limit]    || DEFAULT_LIMIT
     start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    @posts = @requester.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    @posts = user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+
+    render 'api/posts/index'
+  end
+
+  def get_followed_posts
+    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    unless error.nil?
+      render json: [error], status: 401 and return
+    end
+
+    unless @requester
+      render json: ['Requester not found'], status: 404 and return
+    end
+
+    most_recent_post = @requester.followees.collect{|u| u.posts.last}.flatten.last
+
+    limit    = params[:limit]    || DEFAULT_LIMIT
+    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+
+    @posts = @requester.followees.collect{|u| u.posts.where('id < ?', start_at).last(limit)}.flatten.last(limit).reverse
 
     render 'api/posts/index'
   end
@@ -76,7 +117,7 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    @post = Post.new({ body: params[:body], author_id: @requester.id })
+    @post = Post.new({ body: params[:body], author_id: @requester.id, image_url: params[:image_url] })
 
     if @post.save
       render 'api/posts/show'
