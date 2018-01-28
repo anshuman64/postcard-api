@@ -96,12 +96,12 @@ class Api::PostsController < ApplicationController
       render json: ['Requester not found'], status: 404 and return
     end
 
-    most_recent_post = @requester.followees.collect{|u| u.posts.last}.flatten.last
+    most_recent_post_id = @requester.followees.collect{|u| u.posts.last.id}.flatten.max
 
     limit    = params[:limit]    || DEFAULT_LIMIT
-    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+    start_at = params[:start_at] || (most_recent_post_id ? most_recent_post_id + 1 : DEFAULT_START_AT)
 
-    @posts = @requester.followees.collect{|u| u.posts.where('id < ?', start_at).last(limit)}.flatten.last(limit).reverse
+    @posts = @requester.followees.collect{|u| u.posts.where('id < ?', start_at).last(limit)}.flatten.sort_by{|e| -e[:id]}.last(limit)
 
     render 'api/posts/index'
   end
