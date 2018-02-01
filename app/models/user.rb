@@ -1,6 +1,6 @@
 class User < ApplicationRecord
   validates :firebase_uid, presence: true
-  validates :firebase_uid, :username, :email, :phone_number, uniqueness: {allow_blank: true, case_sensitive: false}
+  validates :firebase_uid, :username, :email, :phone_number, uniqueness: { allow_blank: true, case_sensitive: false }
 
   has_many(
     :posts,
@@ -16,6 +16,12 @@ class User < ApplicationRecord
     foreign_key: :user_id,
     primary_key: :id,
     dependent:   :destroy
+  )
+
+  has_many(
+    :liked_posts,
+    through: :likes,
+    source:  :post
   )
 
   has_many(
@@ -35,12 +41,6 @@ class User < ApplicationRecord
   )
 
   has_many(
-    :liked_posts,
-    through: :likes,
-    source:  :post
-  )
-
-  has_many(
     :followers,
     through: :follows_as_followee,
     source:  :follower
@@ -50,5 +50,21 @@ class User < ApplicationRecord
     :followees,
     through: :follows_as_follower,
     source:  :followee
+  )
+
+  has_many(
+    :friendships_as_requester,
+    class_name:  :Friendship,
+    foreign_key: :requester_id,
+    primary_key: :id,
+    dependent:   :destroy
+  )
+
+  has_many(
+    :friendships_as_requestee,
+    class_name:  :Friendship,
+    foreign_key: :requestee_id,
+    primary_key: :id,
+    dependent:   :destroy
   )
 end
