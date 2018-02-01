@@ -2,12 +2,8 @@ class Api::LikesController < ApplicationController
   def create_like
     requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @like = Like.new({ post_id: params[:post_id], user_id: requester.id })
@@ -22,12 +18,8 @@ class Api::LikesController < ApplicationController
   def destroy_like
     requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @like = Like.find_by_user_id_and_post_id(requester.id, params[:post_id])

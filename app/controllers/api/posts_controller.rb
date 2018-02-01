@@ -2,12 +2,8 @@ class Api::PostsController < ApplicationController
   def get_all_posts
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @posts = Post.query_all_posts(params[:limit], params[:start_at])
@@ -18,12 +14,8 @@ class Api::PostsController < ApplicationController
   def get_authored_posts
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     user = params[:user_id] ? User.find(params[:user_id]) : @requester
@@ -36,12 +28,8 @@ class Api::PostsController < ApplicationController
   def get_liked_posts
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     user = params[:user_id] ? User.find(params[:user_id]) : @requester
@@ -54,12 +42,8 @@ class Api::PostsController < ApplicationController
   def get_followed_posts
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @posts = Post.query_followed_posts(params[:limit], params[:start_at], @requester)
@@ -70,12 +54,8 @@ class Api::PostsController < ApplicationController
   def create_post
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @post = Post.new({ body: params[:body], author_id: @requester.id, image_url: params[:image_url] })
@@ -90,12 +70,8 @@ class Api::PostsController < ApplicationController
   def destroy_post
     @requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @post = Post.find(params[:id])

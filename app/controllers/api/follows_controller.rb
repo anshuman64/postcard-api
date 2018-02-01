@@ -2,12 +2,8 @@ class Api::FollowsController < ApplicationController
   def create_follow
     requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @follow = Follow.new({ followee_id: params[:followee_id], follower_id: requester.id })
@@ -22,12 +18,8 @@ class Api::FollowsController < ApplicationController
   def destroy_follow
     requester, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
-      render json: [error], status: 401 and return
-    end
-
-    unless requester
-      render json: ['Requester not found'], status: 404 and return
+    if error
+      render json: [error.message], status: error.status and return
     end
 
     @follow = Follow.find_by_follower_id_and_followee_id(requester.id, params[:followee_id])

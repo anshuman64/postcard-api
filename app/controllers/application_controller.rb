@@ -6,22 +6,30 @@ class ApplicationController < ActionController::API
   @@verifier = FirebaseTokenVerifier.new(FIREBASE_PROJECT_ID)
 
   def decode_token(firebase_jwt)
-    decoded_firebase_jwt, error = @@verifier.decode(firebase_jwt, nil)
+    decoded_firebase_jwt, error_msg = @@verifier.decode(firebase_jwt, nil)
 
-    if decoded_firebase_jwt.nil?
-      return nil, error
+    if error_msg
+      return nil, { message: error_msg, status: 401 }
     end
 
     return decoded_firebase_jwt['user_id'], nil
   end
 
   def decode_token_and_find_user(firebase_jwt)
-    decoded_firebase_jwt, error = @@verifier.decode(firebase_jwt, nil)
+    decoded_firebase_jwt, error_msg = @@verifier.decode(firebase_jwt, nil)
 
-    if decoded_firebase_jwt.nil?
-      return nil, error
+    # Here we assume that either decoded_firebase_jwt or error_msg are nil
+    # If there is an error_msg, we return immediately
+    if error_msg
+      return nil, { message: error_msg, status: 401 }
     end
 
-    return User.find_by_firebase_uid(decoded_firebase_jwt['user_id']), nil
+    requester = User.find_by_firebase_uid(decoded_firebase_jwt['user_id'])
+
+    if requester
+      return requester, nil
+    else
+      return nil, { message: 'Requester not found', status: 404 }
+    end
   end
 end
