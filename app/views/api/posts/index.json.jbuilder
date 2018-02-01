@@ -7,8 +7,9 @@ json.array! @posts do |post|
   json.num_flags post.flags.count
   json.is_flagged_by_user post.flags.where('user_id = ?', @requester.id).present?
 
-  author = User.find(post.author_id)
-  json.author_username author.username
-  json.author_avatar_url author.avatar_url
-  json.is_author_followed_by_user author.followers.where('follower_id = ?', @requester.id).present?
+  json.is_author_followed_by_user post.author.followers.where('follower_id = ?', @requester.id).present?
+
+  json.author do
+    json.(post.author, :id, :username, :avatar_url)
+  end
 end
