@@ -1,12 +1,12 @@
 class Api::FlagsController < ApplicationController
   def create_flag
-    requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @flag = Flag.new({ post_id: params[:post_id], user_id: requester.id })
+    @flag = Flag.new({ post_id: params[:post_id], user_id: client.id })
 
     if @flag.save
       render 'api/flags/show'
@@ -16,19 +16,19 @@ class Api::FlagsController < ApplicationController
   end
 
   def destroy_flag
-    requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @flag = Flag.find_by_user_id_and_post_id(requester.id, params[:post_id])
+    @flag = Flag.find_by_user_id_and_post_id(client.id, params[:post_id])
 
     unless @flag
       render json: ['Flag not found'], status: 404 and return
     end
 
-    unless @flag.user == requester
+    unless @flag.user == client
       render json: ['Unauthorized request'], status: 403 and return
     end
 

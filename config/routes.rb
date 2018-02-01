@@ -10,8 +10,8 @@ Rails.application.routes.draw do
     # 'Posts' routes
     get    'posts',                   to: 'posts#get_all_posts'
     get    'posts/authored',          to: 'posts#get_authored_posts'
-    get    'posts/liked',             to: 'posts#get_liked_posts'
     get    'posts/authored/:user_id', to: 'posts#get_authored_posts'
+    get    'posts/liked',             to: 'posts#get_liked_posts'
     get    'posts/liked/:user_id',    to: 'posts#get_liked_posts'
     get    'posts/followed/',         to: 'posts#get_followed_posts'
     post   'posts',                   to: 'posts#create_post'
@@ -20,7 +20,7 @@ Rails.application.routes.draw do
     # 'Likes' routes
     post   'likes',                   to: 'likes#create_like'
     delete 'likes/:post_id',          to: 'likes#destroy_like'
-    
+
     # 'Flags' routes
     post   'flags',                   to: 'flags#create_flag'
     delete 'flags/:post_id',          to: 'flags#destroy_flag'
@@ -28,5 +28,10 @@ Rails.application.routes.draw do
     # 'Follows' routes
     post   'follows',                 to: 'follows#create_follow'
     delete 'follows/:followee_id',    to: 'follows#destroy_follow'
+
+    # 'Friendships' routes
+    post   'friendships',             to: 'friendships#create_friend_request'
+    put    'friendships/:id',         to: 'friendships#accept_friend_request'
+    delete 'friendships/:id',         to: 'friendships#destroy_friendship'
   end
 end

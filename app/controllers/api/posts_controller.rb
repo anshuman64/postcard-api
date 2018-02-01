@@ -1,6 +1,6 @@
 class Api::PostsController < ApplicationController
   def get_all_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
@@ -12,13 +12,13 @@ class Api::PostsController < ApplicationController
   end
 
   def get_authored_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    user = params[:user_id] ? User.find(params[:user_id]) : @requester
+    user = params[:user_id] ? User.find(params[:user_id]) : @client
 
     @posts = Post.query_authored_posts(params[:limit], params[:start_at], user)
 
@@ -26,13 +26,13 @@ class Api::PostsController < ApplicationController
   end
 
   def get_liked_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    user = params[:user_id] ? User.find(params[:user_id]) : @requester
+    user = params[:user_id] ? User.find(params[:user_id]) : @client
 
     @posts = Post.query_liked_posts(params[:limit], params[:start_at], user)
 
@@ -40,25 +40,25 @@ class Api::PostsController < ApplicationController
   end
 
   def get_followed_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @posts = Post.query_followed_posts(params[:limit], params[:start_at], @requester)
+    @posts = Post.query_followed_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
 
   def create_post
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @post = Post.new({ body: params[:body], author_id: @requester.id, image_url: params[:image_url] })
+    @post = Post.new({ body: params[:body], author_id: @client.id, image_url: params[:image_url] })
 
     if @post.save
       render 'api/posts/show'
@@ -68,7 +68,7 @@ class Api::PostsController < ApplicationController
   end
 
   def destroy_post
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
@@ -80,7 +80,7 @@ class Api::PostsController < ApplicationController
       render json: ['Post not found'], status: 404 and return
     end
 
-    unless @post.author == @requester
+    unless @post.author == @client
       render json: ['Unauthorized request'], status: 403 and return
     end
 
