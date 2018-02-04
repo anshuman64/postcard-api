@@ -5,28 +5,15 @@ class Post < ApplicationRecord
   validates :author_id, presence: true
   validate  :validate_post_content
 
-  belongs_to(
-    :author,
-    class_name:  :User,
-    foreign_key: :author_id,
-    primary_key: :id
-  )
+  belongs_to(:author, class_name: :User, foreign_key: :author_id, primary_key: :id)
 
-  has_many(
-    :likes,
-    class_name:  :Like,
-    foreign_key: :post_id,
-    primary_key: :id,
-    dependent:   :destroy
-  )
+  has_many(:likes, class_name: :Like, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
+  has_many(:likers, through: :likes, source: :user)
 
-  has_many(
-    :flags,
-    class_name:  :Flag,
-    foreign_key: :post_id,
-    primary_key: :id,
-    dependent:   :destroy
-  )
+  has_many(:flags, class_name: :Flag, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
+
+  has_many(:shares, class_name: :Share, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
+  has_many(:share_recipients, through: :shares, source: :recipient)
 
   def self.query_all_posts(limit, start_at)
     most_recent_post = Post.last
