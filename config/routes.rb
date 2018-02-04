@@ -33,7 +33,7 @@ Rails.application.routes.draw do
     get    'friendships/sent/:user_id',     to: 'friendships#get_sent_requests'
     get    'friendships/received/:user_id', to: 'friendships#get_received_requests'
     post   'friendships',                   to: 'friendships#create_friend_request'
-    put    'friendships/:requester_id',     to: 'friendships#accept_friend_request'
+    put    'friendships/accept',            to: 'friendships#accept_friend_request'
     delete 'friendships/:user_id',          to: 'friendships#destroy_friendship'
   end
 end
