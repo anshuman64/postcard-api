@@ -17,6 +17,6 @@ class User < ApplicationRecord
   has_many(:friends_as_requester, through: :friendships_as_requester, source: :requestee)
   has_many(:friends_as_requestee, through: :friendships_as_requestee, source: :requester)
 
-  has_many(:shares, class_name: :Share, foreign_key: :recipient_id, primary_key: :id, dependent: :destroy)
-  has_many(:shared_posts, through: :shares, source: :post)
+  has_many(:received_shares, class_name: :Share, foreign_key: :recipient_id, primary_key: :id, dependent: :destroy)
+  has_many(:received_posts, through: :received_shares, source: :post)
 end

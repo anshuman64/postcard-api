@@ -1,12 +1,12 @@
 class Api::PostsController < ApplicationController
-  def get_all_posts
+  def get_public_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @posts = Post.query_all_posts(params[:limit], params[:start_at])
+    @posts = Post.query_public_posts(params[:limit], params[:start_at])
 
     render 'api/posts/index'
   end
@@ -47,6 +47,18 @@ class Api::PostsController < ApplicationController
     end
 
     @posts = Post.query_followed_posts(params[:limit], params[:start_at], @client)
+
+    render 'api/posts/index'
+  end
+
+  def get_received_posts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error.message], status: error.status and return
+    end
+
+    @posts = Post.query_received_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end

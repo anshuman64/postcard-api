@@ -15,13 +15,13 @@ class Post < ApplicationRecord
   has_many(:shares, class_name: :Share, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
   has_many(:share_recipients, through: :shares, source: :recipient)
 
-  def self.query_all_posts(limit, start_at)
+  def self.query_public_posts(limit, start_at)
     most_recent_post = Post.last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    Post.where('id < ?', start_at).last(limit).reverse
+    Post.where('id < ? and is_public = ?', start_at, true).last(limit).reverse
   end
 
   def self.query_authored_posts(limit, start_at, author)
@@ -48,7 +48,16 @@ class Post < ApplicationRecord
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post_id ? most_recent_post_id + 1 : DEFAULT_START_AT)
 
-    @posts = user.followees.collect{ |u| u.posts.where('id < ?', start_at).last(limit) }.flatten.sort_by{ |e| -e[:id] }.last(limit)
+    user.followees.collect{ |u| u.posts.where('id < ? and is_public = ?', start_at, true).last(limit) }.flatten.sort_by{ |e| -e[:id] }.last(limit)
+  end
+
+  def self.query_received_posts(limit, start_at, user)
+    most_recent_post = user.received_posts.last
+
+    limit    ||= DEFAULT_LIMIT
+    start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+
+    user.received_posts.where('post_id < ?', start_at).last(limit).reverse
   end
 
   private
