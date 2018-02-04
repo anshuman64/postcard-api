@@ -58,9 +58,21 @@ class Api::PostsController < ApplicationController
       render json: [error.message], status: error.status and return
     end
 
-    @post = Post.new({ body: params[:body], author_id: @client.id, image_url: params[:image_url] })
+    @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: params[:is_public] })
 
     if @post.save
+      if params[:recipient_ids]
+        params[:recipient_ids].each do |recipient_id|
+          share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
+
+          if share.save
+            next
+          else
+            render json: ['Sharing posts failed.'], status: 422 and return
+          end
+        end
+      end
+
       render 'api/posts/show'
     else
       render json: @post.errors.full_messages, status: 422
