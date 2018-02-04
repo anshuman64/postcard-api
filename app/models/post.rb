@@ -24,22 +24,31 @@ class Post < ApplicationRecord
     Post.where('id < ? and is_public = ?', start_at, true).last(limit).reverse
   end
 
-  def self.query_authored_posts(limit, start_at, author)
+  def self.query_authored_posts(limit, start_at, author, fetch_all)
     most_recent_post = author.posts.last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    author.posts.where('id < ?', start_at).last(limit).reverse
+    if fetch_all
+      return author.posts.where('id < ?', start_at).last(limit).reverse
+    else
+      return author.posts.where('id < ? and is_public = ?', start_at, true).last(limit).reverse
+    end
   end
 
-  def self.query_liked_posts(limit, start_at, user)
+  def self.query_liked_posts(limit, start_at, user, fetch_all)
     most_recent_post = user.liked_posts.last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    # TODO: how tf does this query work
+    if fetch_all
+      return user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    else
+      return user.liked_posts.where('post_id < ? and is_public = ?', start_at, true).last(limit).reverse
+    end
   end
 
   def self.query_followed_posts(limit, start_at, user)
