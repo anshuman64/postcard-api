@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180201063910) do
+ActiveRecord::Schema.define(version: 20180204045608) do
 
   create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "user_id", null: false
@@ -55,6 +55,7 @@ ActiveRecord::Schema.define(version: 20180201063910) do
     t.datetime "updated_at", null: false
     t.string "image_url"
     t.text "body"
+    t.boolean "is_public", default: false, null: false
     t.index ["author_id"], name: "index_posts_on_author_id"
   end
 
