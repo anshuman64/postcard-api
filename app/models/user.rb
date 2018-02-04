@@ -67,4 +67,16 @@ class User < ApplicationRecord
     primary_key: :id,
     dependent:   :destroy
   )
+
+  has_many(
+    :friends_as_requester,
+    through: :friendships_as_requester,
+    source:  :requestee
+  )
+
+  has_many(
+    :friends_as_requestee,
+    through: :friendships_as_requestee,
+    source:  :requester
+  )
 end

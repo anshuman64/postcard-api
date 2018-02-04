@@ -21,4 +21,14 @@ class Friendship < ApplicationRecord
   def self.find_friendship(user1_id, user2_id)
     Friendship.find_by_requester_id_and_requestee_id(user1_id, user2_id) || Friendship.find_by_requester_id_and_requestee_id(user2_id, user1_id)
   end
+
+  def self.query_friends(user)
+    user.friendships_as_requester.where(status: 'ACCEPTED') |
+    user.friendships_as_requestee.where(status: 'ACCEPTED')
+
+    User.joins(:friendships_as_requestee).where('requester_id = ?', user.id) |
+    User.joins(:friendships_as_requester).where('requestee_id = ?', user.id)
+
+    user.friends_as_requester | user.friends_as_requestee
+  end
 end
