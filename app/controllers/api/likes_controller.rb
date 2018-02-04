@@ -28,10 +28,6 @@ class Api::LikesController < ApplicationController
       render json: ['Like not found'], status: 404 and return
     end
 
-    unless @like.user == client
-      render json: ['Unauthorized request'], status: 403 and return
-    end
-
     if @like.destroy
       render 'api/likes/show'
     else

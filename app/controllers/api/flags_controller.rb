@@ -28,10 +28,6 @@ class Api::FlagsController < ApplicationController
       render json: ['Flag not found'], status: 404 and return
     end
 
-    unless @flag.user == client
-      render json: ['Unauthorized request'], status: 403 and return
-    end
-
     if @flag.destroy
       render 'api/flags/show'
     else

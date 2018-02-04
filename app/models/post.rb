@@ -3,7 +3,7 @@ class Post < ApplicationRecord
   DEFAULT_START_AT = 1
 
   validates :author_id, presence: true
-  validate :validate_post_content
+  validate  :validate_post_content
 
   belongs_to(
     :author,
