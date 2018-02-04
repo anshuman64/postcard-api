@@ -52,6 +52,7 @@ class Post < ApplicationRecord
   end
 
   def self.query_followed_posts(limit, start_at, user)
+    # TODO: fix this query
     most_recent_post_id = user.followees.collect{ |u| u.posts.last.id }.flatten.max
 
     limit    ||= DEFAULT_LIMIT
