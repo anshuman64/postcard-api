@@ -23,12 +23,14 @@ class Friendship < ApplicationRecord
   end
 
   def self.query_friends(user)
-    user.friendships_as_requester.where(status: 'ACCEPTED') |
-    user.friendships_as_requestee.where(status: 'ACCEPTED')
+    user.friends_as_requester.where('status = ?', 'ACCEPTED') | user.friends_as_requestee.where('status = ?', 'ACCEPTED')
+  end
 
-    User.joins(:friendships_as_requestee).where('requester_id = ?', user.id) |
-    User.joins(:friendships_as_requester).where('requestee_id = ?', user.id)
+  def self.query_sent_requests(user)
+    user.friends_as_requester.where('status = ?', 'REQUESTED')
+  end
 
-    user.friends_as_requester | user.friends_as_requestee
+  def self.query_received_requests(user)
+    user.friends_as_requester.where('status = ?', 'REQUESTED')
   end
 end

@@ -18,7 +18,7 @@ class Api::FriendshipsController < ApplicationController
       render json: [error.message], status: error.status and return
     end
 
-    @users = User.find
+    @users = Friendship.query_sent_requests(client)
 
     render 'api/users/index'
   end
@@ -30,7 +30,7 @@ class Api::FriendshipsController < ApplicationController
       render json: [error.message], status: error.status and return
     end
 
-    @users = User.find
+    @users = Friendship.query_received_requests(client)
 
     render 'api/users/index'
   end
