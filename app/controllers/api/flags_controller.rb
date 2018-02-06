@@ -3,7 +3,7 @@ class Api::FlagsController < ApplicationController
     client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @flag = Flag.new({ post_id: params[:post_id], user_id: client.id })
@@ -19,7 +19,7 @@ class Api::FlagsController < ApplicationController
     client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @flag = Flag.find_by_user_id_and_post_id(client.id, params[:post_id])

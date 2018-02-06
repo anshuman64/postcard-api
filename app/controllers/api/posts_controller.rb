@@ -3,7 +3,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @posts = Post.query_public_posts(params[:limit], params[:start_at])
@@ -15,7 +15,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true)
@@ -27,7 +27,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     user = User.find(params[:user_id])
@@ -41,7 +41,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true)
@@ -53,7 +53,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     user = User.find(params[:user_id])
@@ -67,7 +67,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @posts = Post.query_followed_posts(params[:limit], params[:start_at], @client)
@@ -79,7 +79,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @posts = Post.query_received_posts(params[:limit], params[:start_at], @client)
@@ -91,7 +91,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: params[:is_public] })
@@ -119,7 +119,7 @@ class Api::PostsController < ApplicationController
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
-      render json: [error.message], status: error.status and return
+      render json: [error], status: 401 and return
     end
 
     @post = Post.find(params[:id])
