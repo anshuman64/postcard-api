@@ -52,13 +52,12 @@ class Post < ApplicationRecord
   end
 
   def self.query_followed_posts(limit, start_at, user)
-    # TODO: fix this query
-    most_recent_post_id = user.followees.collect{ |u| u.posts.last.id }.flatten.max
+    most_recent_post = user.followees.collect{ |followee| followee.posts }.flatten.sort_by{ |post| post.id }.last
 
     limit    ||= DEFAULT_LIMIT
-    start_at ||= (most_recent_post_id ? most_recent_post_id + 1 : DEFAULT_START_AT)
+    start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    user.followees.collect{ |u| u.posts.where('id < ? and is_public = ?', start_at, true).last(limit) }.flatten.sort_by{ |e| -e[:id] }.last(limit)
+    user.followees.collect{ |followee| followee.posts.where('is_public = ?', true) }.flatten.find_all{ |post| post.id < start_at }.sort_by{ |post| post.id }.last(limit).reverse
   end
 
   def self.query_received_posts(limit, start_at, user)
