@@ -21,6 +21,6 @@ class Friendship < ApplicationRecord
   end
 
   def self.query_received_requests(user)
-    user.friends_as_requester.where('status = ?', 'REQUESTED')
+    user.friends_as_requestee.where('status = ?', 'REQUESTED')
   end
 end
