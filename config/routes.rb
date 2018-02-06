@@ -32,9 +32,9 @@ Rails.application.routes.draw do
     delete 'follows/:followee_id',          to: 'follows#destroy_follow'
 
     # 'Friendships' routes
-    get    'friendships/accepted/:user_id', to: 'friendships#get_friends'
-    get    'friendships/sent/:user_id',     to: 'friendships#get_sent_requests'
-    get    'friendships/received/:user_id', to: 'friendships#get_received_requests'
+    get    'friendships/accepted',          to: 'friendships#get_friends'
+    get    'friendships/sent',              to: 'friendships#get_sent_requests'
+    get    'friendships/received',          to: 'friendships#get_received_requests'
     post   'friendships',                   to: 'friendships#create_friend_request'
     put    'friendships/accept',            to: 'friendships#accept_friend_request'
     delete 'friendships/:user_id',          to: 'friendships#destroy_friendship'
