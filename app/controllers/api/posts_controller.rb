@@ -32,7 +32,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user)
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false)
 
     render 'api/posts/index'
   end
@@ -58,7 +58,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user)
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false)
 
     render 'api/posts/index'
   end

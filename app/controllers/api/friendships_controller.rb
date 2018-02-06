@@ -1,36 +1,36 @@
 class Api::FriendshipsController < ApplicationController
   def get_friends
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @users = Friendship.query_friends(client)
+    @users = Friendship.query_friends(@client)
 
     render 'api/users/index'
   end
 
   def get_sent_requests
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @users = Friendship.query_sent_requests(client)
+    @users = Friendship.query_sent_requests(@client)
 
     render 'api/users/index'
   end
 
   def get_received_requests
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error.message], status: error.status and return
     end
 
-    @users = Friendship.query_received_requests(client)
+    @users = Friendship.query_received_requests(@client)
 
     render 'api/users/index'
   end
