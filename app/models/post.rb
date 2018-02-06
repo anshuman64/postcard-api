@@ -57,7 +57,7 @@ class Post < ApplicationRecord
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    user.followees.collect{ |followee| followee.posts.where('is_public = ?', true) }.flatten.find_all{ |post| post.id < start_at }.sort_by{ |post| post.id }.last(limit).reverse
+    user.followees.collect{ |followee| followee.posts.where('is_public = ?', true) }.flatten.find_all{ |post| post.id < start_at.to_i }.sort_by{ |post| post.id }.last(limit).reverse
   end
 
   def self.query_received_posts(limit, start_at, user)
