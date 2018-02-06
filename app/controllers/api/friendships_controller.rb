@@ -42,11 +42,26 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    if Friendship.find_friendship(client.id, params[:requestee_id])
+    if params[:username]
+      user = User.find_by_username(params[:username])
+      if user
+        if user.id == client.id
+          render json: ['Requester and requestee cannot be the same'], status: 403 and return
+        else
+          user_id = user.id
+        end
+      else
+        render json: ['User not found'], status: 403 and return
+      end
+    else
+      user_id = params[:requestee_id]
+    end
+
+    if Friendship.find_friendship(client.id, user_id)
       render json: ['Friendship already exists'], status: 403 and return
     end
 
-    @friendship = Friendship.new({ requester_id: client.id, requestee_id: params[:requestee_id] })
+    @friendship = Friendship.new({ requester_id: client.id, requestee_id: user_id })
 
     if @friendship.save
       render 'api/friendships/show'
