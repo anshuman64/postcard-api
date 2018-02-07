@@ -43,7 +43,7 @@ class Post < ApplicationRecord
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
-    # TODO: how tf does this query work
+    # TODO: figure out how this query works
     if fetch_all
       return user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
     else
