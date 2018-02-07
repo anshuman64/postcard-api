@@ -133,6 +133,8 @@ class Api::PostsController < ApplicationController
     end
 
     if @post.destroy
+      Share.destroy_all(post_id: @post.id)
+      
       render 'api/posts/show'
     else
       render json: @post.errors.full_messages, status: 422
