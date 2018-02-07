@@ -131,11 +131,6 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    # shares = Share.find_by_post_id(params[:id])
-    # shares.each do |share|
-    #   share.destroy
-    # end
-
     @post = Post.find(params[:id])
 
     unless @post
