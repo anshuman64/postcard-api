@@ -11,4 +11,13 @@ json.array! @posts do |post|
     json.(post.author, :id, :username, :avatar_url)
     json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present?
   end
+
+  #BACKWARD COMPATABILITY: Delete after v2.0.0 ships
+  json.is_liked_by_user post.likes.where('user_id = ?', @client.id).present?
+  json.is_flagged_by_user post.flags.where('user_id = ?', @client.id).present?
+
+  json.author_username post.author.username
+  json.author_avatar_url post.author.avatar_url
+  json.is_author_followed_by_user post.author.followers.where('follower_id = ?', @client.id).present?
+  #BACKWARD COMPATABILITY: Delete after v2.0.0 ships
 end
