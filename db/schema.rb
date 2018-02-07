@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180131031942) do
+ActiveRecord::Schema.define(version: 20180204045858) do
 
-  create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "user_id", null: false
     t.integer "post_id", null: false
     t.datetime "created_at", null: false
@@ -21,7 +21,7 @@ ActiveRecord::Schema.define(version: 20180131031942) do
     t.index ["user_id"], name: "index_flags_on_user_id"
   end
 
-  create_table "follows", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "follows", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "follower_id", null: false
     t.integer "followee_id", null: false
     t.datetime "created_at", null: false
@@ -30,7 +30,17 @@ ActiveRecord::Schema.define(version: 20180131031942) do
     t.index ["follower_id"], name: "index_follows_on_follower_id"
   end
 
-  create_table "likes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "friendships", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "requester_id", null: false
+    t.integer "requestee_id", null: false
+    t.string "status", default: "REQUESTED", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["requestee_id"], name: "index_friendships_on_requestee_id"
+    t.index ["requester_id"], name: "index_friendships_on_requester_id"
+  end
+
+  create_table "likes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "user_id", null: false
     t.integer "post_id", null: false
     t.datetime "created_at", null: false
@@ -45,10 +55,20 @@ ActiveRecord::Schema.define(version: 20180131031942) do
     t.datetime "updated_at", null: false
     t.string "image_url"
     t.text "body"
+    t.boolean "is_public", default: false, null: false
     t.index ["author_id"], name: "index_posts_on_author_id"
   end
 
-  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "shares", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "recipient_id", null: false
+    t.integer "post_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["post_id"], name: "index_shares_on_post_id"
+    t.index ["recipient_id"], name: "index_shares_on_recipient_id"
+  end
+
+  create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "firebase_uid", null: false

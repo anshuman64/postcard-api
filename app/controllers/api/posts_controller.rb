@@ -1,125 +1,114 @@
 class Api::PostsController < ApplicationController
-  DEFAULT_LIMIT    = 10
-  DEFAULT_START_AT = 1
+  def get_public_posts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-  def get_all_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
     end
 
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    @posts = Post.query_public_posts(params[:limit], params[:start_at])
+
+    render 'api/posts/index'
+  end
+
+  def get_my_authored_posts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
     end
 
-    most_recent_post = Post.last
-
-    limit    = params[:limit]    || DEFAULT_LIMIT
-    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
-
-    @posts = Post.where('id < ?', start_at).last(limit).reverse
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true)
 
     render 'api/posts/index'
   end
 
   def get_authored_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
     end
 
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    user = User.find(params[:user_id])
+
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false)
+
+    render 'api/posts/index'
+  end
+
+  def get_my_liked_posts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
     end
 
-    if params[:user_id]
-      user = User.find(params[:user_id])
-    else
-      user = @requester
-    end
-
-    unless user
-      render json: ['User not found'], status: 404 and return
-    end
-
-    most_recent_post = user.posts.last
-
-    limit    = params[:limit]    || DEFAULT_LIMIT
-    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
-
-    @posts = user.posts.where('id < ?', start_at).last(limit).reverse
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true)
 
     render 'api/posts/index'
   end
 
   def get_liked_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
     end
 
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
-    end
+    user = User.find(params[:user_id])
 
-    if params[:user_id]
-      user = User.find(params[:user_id])
-    else
-      user = @requester
-    end
-
-    unless user
-      render json: ['User not found'], status: 404 and return
-    end
-
-    most_recent_post = user.liked_posts.last
-
-    limit    = params[:limit]    || DEFAULT_LIMIT
-    start_at = params[:start_at] || (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
-
-    @posts = user.liked_posts.where('post_id < ?', start_at).last(limit).reverse
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false)
 
     render 'api/posts/index'
   end
 
   def get_followed_posts
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
     end
 
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
+    @posts = Post.query_followed_posts(params[:limit], params[:start_at], @client)
+
+    render 'api/posts/index'
+  end
+
+  def get_received_posts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
     end
 
-    most_recent_post_id = @requester.followees.collect{|u| u.posts.last.id}.flatten.max
-
-    limit    = params[:limit]    || DEFAULT_LIMIT
-    start_at = params[:start_at] || (most_recent_post_id ? most_recent_post_id + 1 : DEFAULT_START_AT)
-
-    @posts = @requester.followees.collect{|u| u.posts.where('id < ?', start_at).last(limit)}.flatten.sort_by{|e| -e[:id]}.last(limit)
+    @posts = Post.query_received_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
 
   def create_post
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
     end
 
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
-    end
-
-    @post = Post.new({ body: params[:body], author_id: @requester.id, image_url: params[:image_url] })
+    @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: params[:is_public] })
 
     if @post.save
+      if params[:recipient_ids]
+        params[:recipient_ids].each do |recipient_id|
+          share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
+
+          if share.save
+            next
+          else
+            render json: ['Sharing posts failed.'], status: 422 and return
+          end
+        end
+      end
+
       render 'api/posts/show'
     else
       render json: @post.errors.full_messages, status: 422
@@ -127,14 +116,10 @@ class Api::PostsController < ApplicationController
   end
 
   def destroy_post
-    @requester, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    unless error.nil?
+    if error
       render json: [error], status: 401 and return
-    end
-
-    unless @requester
-      render json: ['Requester not found'], status: 404 and return
     end
 
     @post = Post.find(params[:id])
@@ -143,7 +128,7 @@ class Api::PostsController < ApplicationController
       render json: ['Post not found'], status: 404 and return
     end
 
-    unless @post.author == @requester
+    unless @post.author == @client
       render json: ['Unauthorized request'], status: 403 and return
     end
 
