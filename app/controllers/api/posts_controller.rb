@@ -94,7 +94,16 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: params[:is_public] })
+    # BACKWARDS COMPATABILITY: Delete after v2.0.0 ships
+    if params[:is_public].nil?
+      is_public = true
+    else
+      is_public = params[:is_public]
+    end
+    # BACKWARDS COMPATABILITY: Delete after v2.0.0 ships
+
+
+    @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
 
     if @post.save
       if params[:recipient_ids]
@@ -121,6 +130,11 @@ class Api::PostsController < ApplicationController
     if error
       render json: [error], status: 401 and return
     end
+
+    # shares = Share.find_by_post_id(params[:id])
+    # shares.each do |share|
+    #   share.destroy
+    # end
 
     @post = Post.find(params[:id])
 
