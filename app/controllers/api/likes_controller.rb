@@ -9,6 +9,13 @@ class Api::LikesController < ApplicationController
     @like = Like.new({ post_id: params[:post_id], user_id: client.id })
 
     if @like.save
+      user = @like.post.author
+      Pusher.trigger('private-' + user.id.to_s, 'receive-like', {
+        client: client,
+        user: user,
+        like: @like
+      })
+
       render 'api/likes/show'
     else
       render json: @like.errors.full_messages, status: 422

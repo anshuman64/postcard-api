@@ -111,6 +111,13 @@ class Api::PostsController < ApplicationController
           share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
 
           if share.save
+            user = User.find(recipient_id)
+            Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
+              client: @client,
+              user: user,
+              post: @post
+            })
+
             next
           else
             render json: ['Sharing posts failed.'], status: 422 and return
