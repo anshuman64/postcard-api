@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   # For details on the DSL available within this file, see http://guides.rubyonrails.org/routing.html
 
   namespace :api, defaults: { format: :json } do
+    # 'Pusher' routes
+    post 'pusher/auth',                     to: 'pusher#auth'
+
     # 'Users' routes
     get    'users',                         to: 'users#find_user'
     post   'users',                         to: 'users#create_user'
