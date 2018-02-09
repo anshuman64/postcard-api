@@ -10,10 +10,11 @@ class Api::LikesController < ApplicationController
 
     if @like.save
       user = @like.post.author
+
       Pusher.trigger('private-' + user.id.to_s, 'receive-like', {
         client: client,
-        user: user,
-        like: @like
+        user:   user,
+        like:   @like
       })
 
       render 'api/likes/show'
