@@ -94,14 +94,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    # BACKWARDS COMPATABILITY: Delete after v2.0.0 ships
-    if params[:is_public].nil?
-      is_public = true
-    else
-      is_public = params[:is_public]
-    end
-    # BACKWARDS COMPATABILITY: Delete after v2.0.0 ships
-
+    is_public = params[:is_public] || false
 
     @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
 
@@ -112,11 +105,16 @@ class Api::PostsController < ApplicationController
 
           if share.save
             user = User.find(recipient_id)
-            create_notification(user, client.username + ' sent you a post')
+
+            # TODO: find a better way to pass the num likes, ideally we can send what's rendered in the view as the "post"
+            modified_post             = @post.clone
+            modified_post[:num_likes] = @post.likes.count
+
+            create_notification(user, client.username + ' sent you a post.')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client: @client,
-              user: user,
-              post: @post
+              user:   user,
+              post:   modified_post
             })
 
             next

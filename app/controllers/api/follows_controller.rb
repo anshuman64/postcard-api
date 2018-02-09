@@ -28,10 +28,6 @@ class Api::FollowsController < ApplicationController
       render json: ['Follow not found'], status: 404 and return
     end
 
-    unless @follow.follower == client
-      render json: ['Unauthorized request'], status: 403 and return
-    end
-
     if @follow.destroy
       render 'api/follows/show'
     else
