@@ -110,7 +110,7 @@ class Api::PostsController < ApplicationController
             modified_post             = @post.clone
             modified_post[:num_likes] = @post.likes.count
 
-            create_notification(user, client.username + ' sent you a post.')
+            create_notification(user, client.username + ' sent you a post')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client: @client,
               user:   user,

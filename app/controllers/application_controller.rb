@@ -37,11 +37,11 @@ class ApplicationController < ActionController::API
   def create_notification(recipient, message)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
-      contents: {
-        en: message
-      },
-      ios_badgeType: 'None',
+      contents: { en: message },
+      ios_badgeType: 'Increase',
       ios_badgeCount: 1,
+      android_led_color: '007aff',
+      android_accent_color: '007aff',
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}]
     }
 
