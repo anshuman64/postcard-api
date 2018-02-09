@@ -64,6 +64,23 @@ class Api::FriendshipsController < ApplicationController
     @friendship = Friendship.new({ requester_id: client.id, requestee_id: user_id })
 
     if @friendship.save
+      # Send event to client with user info if user added by username
+      if user
+        Pusher.trigger('private-' + client.id.to_s, 'create-friendship', {
+          client: client,
+          user: user,
+          friendship: @friendship
+        })
+      end
+
+      # Send event to requestee
+      user = User.find(user_id)
+      Pusher.trigger('private-' + user.id.to_s, 'receive-friendship', {
+        client: client,
+        user: user,
+        friendship: @friendship
+      })
+
       render 'api/friendships/show'
     else
       render json: @friendship.errors.full_messages, status: 422
@@ -84,6 +101,13 @@ class Api::FriendshipsController < ApplicationController
     end
 
     if @friendship.update({ status: 'ACCEPTED' })
+      user = User.find(params[:requester_id])
+      Pusher.trigger('private-' + user.id.to_s, 'receive-accepted-friendship', {
+        client: client,
+        friendship: @friendship,
+        user: user
+      })
+
       render 'api/friendships/show'
     else
       render json: @friendship.errors.full_messages, status: 422
@@ -104,6 +128,13 @@ class Api::FriendshipsController < ApplicationController
     end
 
     if @friendship.destroy
+      user = User.find(params[:user_id])
+      Pusher.trigger('private-' + user.id.to_s, 'destroy-friendship', {
+        client: client,
+        user: user,
+        friendship: @friendship
+      })
+
       render 'api/friendships/show'
     else
       render json: @friendship.errors.full_messages, status: 422
