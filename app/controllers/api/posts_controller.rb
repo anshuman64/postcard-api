@@ -106,15 +106,11 @@ class Api::PostsController < ApplicationController
           if share.save
             user = User.find(recipient_id)
 
-            # TODO: find a better way to pass the num likes, ideally we can send what's rendered in the view as the "post"
-            modified_post             = @post.clone
-            modified_post[:num_likes] = @post.likes.count
-
-            create_notification(user, client.username + ' sent you a post')
+            create_notification(user, @client.username + ' sent you a post!')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client: @client,
               user:   user,
-              post:   modified_post
+              post:   @post
             })
 
             next
