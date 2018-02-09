@@ -112,6 +112,7 @@ class Api::PostsController < ApplicationController
 
           if share.save
             user = User.find(recipient_id)
+            create_notification(user, client.username + ' sent you a post')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client: @client,
               user: user,
