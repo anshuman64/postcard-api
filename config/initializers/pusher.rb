@@ -1,6 +1,6 @@
 require 'pusher'
 
-Pusher.app_id = '468835'
+Pusher.app_id = ENV["PUSHER_APP_ID"]
 Pusher.key = ENV["PUSHER_KEY"]
 Pusher.secret = ENV["PUSHER_SECRET"]
 Pusher.cluster = 'us2'
