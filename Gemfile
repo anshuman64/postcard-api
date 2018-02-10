@@ -32,6 +32,7 @@ gem 'jwt', '2.1.0'
 # gem 'capistrano-rails', group: :development
 
 gem 'pusher', '~> 1.3.1'
+gem 'one_signal', '~> 1.2.0'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

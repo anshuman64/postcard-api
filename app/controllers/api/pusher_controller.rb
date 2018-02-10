@@ -10,7 +10,6 @@ class Api::PusherController < ApplicationController
 
     if authorized_channel == params[:channel_name]
       response = Pusher.authenticate(params[:channel_name], params[:socket_id])
-      
       render json: response
     else
       render json: ['Unauthorized request to Pusher'], status: '403'

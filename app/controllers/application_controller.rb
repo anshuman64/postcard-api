@@ -1,4 +1,5 @@
 require 'firebase_token_verifier'
+require 'one_signal'
 
 class ApplicationController < ActionController::API
   FIREBASE_PROJECT_ID = 'insiya-mobile'
@@ -30,6 +31,28 @@ class ApplicationController < ActionController::API
       return requester, nil
     else
       return nil, 'Requester not found'
+    end
+  end
+
+  def create_notification(recipient, message)
+    params = {
+      app_id: ENV["ONE_SIGNAL_APP_ID"],
+      contents: { en: message },
+      ios_badgeType: 'Increase',
+      ios_badgeCount: 1,
+      android_led_color: '007aff',
+      android_accent_color: '007aff',
+      filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}]
+    }
+
+    begin
+      response = OneSignal::Notification.create(params: params, opts: { auth_key: ENV["ONE_SIGNAL_AUTH_KEY"] })
+      notification_id = JSON.parse(response.body)["id"]
+    rescue OneSignal::OneSignalError => e
+      puts "--- OneSignalError  :"
+      puts "-- message : #{e.message}"
+      puts "-- status : #{e.http_status}"
+      puts "-- body : #{e.http_body}"
     end
   end
 end
