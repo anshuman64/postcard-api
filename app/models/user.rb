@@ -19,4 +19,9 @@ class User < ApplicationRecord
 
   has_many(:received_shares, class_name: :Share, foreign_key: :recipient_id, primary_key: :id, dependent: :destroy)
   has_many(:received_posts, through: :received_shares, source: :post)
+
+  has_many(:groupings, class_name: :Grouping, foreign_key: :participant_id, primary_key: :id, dependent: :destroy)
+  has_many(:conversations, through: :groupings, source: :conversation)
+
+  has_many(:messages, class_name: :Message, foreign_key: :author_id, primary_key: :id, dependent: :destroy)
 end
