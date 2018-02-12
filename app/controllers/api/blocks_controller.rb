@@ -1,0 +1,37 @@
+class Api::BlocksController < ApplicationController
+  def create_block
+    client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @block = Follow.new({ blockee_id: params[:blockee_id], blocker_id: client.id })
+
+    if @block.save
+      render 'api/blocks/show'
+    else
+      render json: @block.errors.full_messages, status: 422
+    end
+  end
+
+  def destroy_block
+    client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @block = Follow.find_by_blocker_id_and_blockee_id(client.id, params[:blockee_id])
+
+    unless @block
+      render json: ['Follow not found'], status: 404 and return
+    end
+
+    if @block.destroy
+      render 'api/blocks/show'
+    else
+      render json: @block.errors.full_messages, status: 422
+    end
+  end
+end
