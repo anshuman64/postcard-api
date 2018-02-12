@@ -34,6 +34,11 @@ Rails.application.routes.draw do
     post   'follows',                  to: 'follows#create_follow'
     delete 'follows/:followee_id',     to: 'follows#destroy_follow'
 
+    # 'Blocks' routes
+    get    'blocks',                        to: 'blocks#get_blocked_users'
+    post   'blocks',                        to: 'blocks#create_block'
+    delete 'blocks/:blockee_id',            to: 'blocks#destroy_block'
+
     # 'Friendships' routes
     get    'friendships/accepted',     to: 'friendships#get_friends'
     get    'friendships/sent',         to: 'friendships#get_sent_requests'

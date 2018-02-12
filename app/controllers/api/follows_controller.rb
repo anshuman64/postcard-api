@@ -24,8 +24,9 @@ class Api::FollowsController < ApplicationController
 
     @follow = Follow.find_by_follower_id_and_followee_id(client.id, params[:followee_id])
 
+    # Follow may not exist if blocking the user
     unless @follow
-      render json: ['Follow not found'], status: 404 and return
+      return
     end
 
     if @follow.destroy

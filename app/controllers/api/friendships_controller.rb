@@ -127,8 +127,9 @@ class Api::FriendshipsController < ApplicationController
 
     @friendship = Friendship.find_friendship(client.id, params[:user_id])
 
+    # Friendship may not exist if blocking the user
     unless @friendship
-      render json: ['Friendship not found'], status: 404 and return
+      return
     end
 
     if @friendship.destroy
