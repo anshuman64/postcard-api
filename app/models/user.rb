@@ -7,6 +7,11 @@ class User < ApplicationRecord
   has_many(:likes, class_name: :Like, foreign_key: :user_id, primary_key: :id, dependent: :destroy)
   has_many(:liked_posts, through: :likes, source: :post)
 
+  has_many(:blocks_as_blocker, class_name: :Block, foreign_key: :blocker_id, primary_key: :id, dependent: :destroy)
+  has_many(:blocks_as_blockee, class_name: :Block, foreign_key: :blockee_id, primary_key: :id, dependent: :destroy)
+  has_many(:blockers, through: :blocks_as_blockee, source: :blocker)
+  has_many(:blockees, through: :blocks_as_blocker, source: :blockee)
+
   has_many(:follows_as_follower, class_name: :Follow, foreign_key: :follower_id, primary_key: :id, dependent: :destroy)
   has_many(:follows_as_followee, class_name: :Follow, foreign_key: :followee_id, primary_key: :id, dependent: :destroy)
   has_many(:followers, through: :follows_as_followee, source: :follower)
