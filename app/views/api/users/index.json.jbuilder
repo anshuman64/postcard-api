@@ -6,6 +6,23 @@ json.array! @users do |user|
   friendship = Friendship.find_friendship(@client.id, user.id)
 
   if friendship
-    json.message_peek friendship.messages.last
+    json.peek_message do
+      message = friendship.messages.last
+
+      if message
+        json.(message, :id, :body, :author_id, :friendship_id, :post_id, :created_at, :updated_at)
+      end
+
+      if message.post
+        json.post do
+          json.(message.post, :id, :body, :author_id, :image_url, :is_public, :created_at, :updated_at)
+        end
+      end
+    end
+  end
+
+  json.author do
+    json.(@post.author, :id, :username, :avatar_url)
+    json.is_user_followed_by_client @post.author.followers.where('follower_id = ?', @client.id).present?
   end
 end
