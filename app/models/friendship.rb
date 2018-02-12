@@ -15,7 +15,9 @@ class Friendship < ApplicationRecord
   end
 
   def self.query_friends(user)
-    user.friends_as_requester.where('status = ?', 'ACCEPTED') | user.friends_as_requestee.where('status = ?', 'ACCEPTED')
+    friends = user.friends_as_requester.where('status = ?', 'ACCEPTED') | user.friends_as_requestee.where('status = ?', 'ACCEPTED')
+
+    sort_friends_by_recent_messages(user.id, friends)
   end
 
   def self.query_sent_requests(user)
@@ -24,5 +26,17 @@ class Friendship < ApplicationRecord
 
   def self.query_received_requests(user)
     user.friends_as_requestee.where('status = ?', 'REQUESTED')
+  end
+
+  private
+
+  def sort_friends_by_recent_messages(user_id, friends)
+    friends.sort_by! do |friend|
+      friendship = Friendship.find_friendship(user_id, friend.id)
+
+      friendship.messages.last.created_at
+    end
+
+    friends.reverse
   end
 end

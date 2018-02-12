@@ -8,7 +8,7 @@ class Api::MessagesController < ApplicationController
 
     @messages = Message.query_direct_messages(params[:limit], params[:start_at], client.id, params[:user_id])
 
-    render 'api/posts/index'
+    render 'api/messages/index'
   end
 
   def get_group_messages
