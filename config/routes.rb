@@ -41,5 +41,8 @@ Rails.application.routes.draw do
     post   'friendships',                   to: 'friendships#create_friend_request'
     put    'friendships/accept',            to: 'friendships#accept_friend_request'
     delete 'friendships/:user_id',          to: 'friendships#destroy_friendship'
+
+    # 'Messages' routes
+    post   'messages',                      to: 'messages#create_message'
   end
 end

@@ -49,7 +49,7 @@ class Api::FriendshipsController < ApplicationController
       user = User.find_by_username(params[:username])
 
       unless user
-        render json: ['User not found'], status: 403 and return
+        render json: ['User not found'], status: 404 and return
       end
 
       if user.id == client.id
