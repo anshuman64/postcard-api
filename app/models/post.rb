@@ -73,7 +73,7 @@ class Post < ApplicationRecord
 
   def validate_post_content
     if self.body.blank? && self.image_url.blank?
-      self.errors.add :base, 'Require post body or image_url'
+      self.errors.add :base, 'Require post body or image_url.'
     end
   end
 end
