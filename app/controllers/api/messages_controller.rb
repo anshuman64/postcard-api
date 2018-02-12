@@ -5,16 +5,15 @@ class Api::MessagesController < ApplicationController
     if error
       render json: [error], status: 401 and return
     end
+
+    @messages = Message.query_direct_messages(params[:limit], params[:start_at], client.id, params[:user_id])
+
+    render 'api/posts/index'
   end
 
-  # TODO: This method is here when we add support for group message threads
-  # It is here right now just to make it easy to pick up when we start that project
   def get_group_messages
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
+    # TODO: This method is here when we add support for group message threads
+    # It is here right now just to make it easy to pick up when we start that project
   end
 
   def create_message

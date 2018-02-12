@@ -1,4 +1,7 @@
 class Message < ApplicationRecord
+  DEFAULT_LIMIT    = 10
+  DEFAULT_START_AT = 1
+
   validates :author_id, :friendship_id, presence: true
   validate  :validate_message_content
 
@@ -7,6 +10,21 @@ class Message < ApplicationRecord
   belongs_to(:friendship, class_name: :Friendship, foreign_key: :friendship_id, primary_key: :id)
 
   has_one(:post, class_name: :Post, foreign_key: :post_id, primary_key: :id)
+
+  def self.query_direct_messages(limit, start_at, client_id, user_id)
+    friendship = Friendship.find_friendship(client_id, user_id)
+
+    unless friendship
+      return []
+    end
+
+    most_recent_message = friendship.messages.last
+
+    limit    ||= DEFAULT_LIMIT
+    start_at ||= (most_recent_message ? most_recent_message.id + 1 : DEFAULT_START_AT)
+
+    friendship.messages.where('id < ?', start_at).last(limit).reverse
+  end
 
   private
 
