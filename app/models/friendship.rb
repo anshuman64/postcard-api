@@ -8,6 +8,8 @@ class Friendship < ApplicationRecord
 
   belongs_to(:requestee, class_name: :User, foreign_key: :requestee_id, primary_key: :id)
 
+  has_many(:messages, class_name: :Message, foreign_key: :friendship_id, primary_key: :id, dependent: :destroy)
+
   def self.find_friendship(user1_id, user2_id)
     Friendship.find_by_requester_id_and_requestee_id(user1_id, user2_id) || Friendship.find_by_requester_id_and_requestee_id(user2_id, user1_id)
   end
