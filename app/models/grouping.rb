@@ -1,0 +1,2 @@
+class Grouping < ApplicationRecord
+end
