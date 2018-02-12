@@ -77,7 +77,9 @@ class Api::FriendshipsController < ApplicationController
 
       # Send event to requestee
       user = User.find(user_id)
+      
       create_notification(user, client.username + ' sent you a friend request.')
+      
       Pusher.trigger('private-' + user.id.to_s, 'receive-friendship', {
         client:     client,
         user:       user,
@@ -105,7 +107,9 @@ class Api::FriendshipsController < ApplicationController
 
     if @friendship.update({ status: 'ACCEPTED' })
       user = User.find(params[:requester_id])
+
       create_notification(user, client.username + ' accepted your friend request.')
+
       Pusher.trigger('private-' + user.id.to_s, 'receive-accepted-friendship', {
         client:     client,
         user:       user,
@@ -129,7 +133,7 @@ class Api::FriendshipsController < ApplicationController
 
     # Friendship may not exist if blocking the user
     unless @friendship
-      return
+      render json: {} and return
     end
 
     if @friendship.destroy

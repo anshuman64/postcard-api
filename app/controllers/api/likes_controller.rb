@@ -10,8 +10,10 @@ class Api::LikesController < ApplicationController
 
     if @like.save
       user = @like.post.author
-      if user.id != client.id
+
+      unless user.id == client.id
         create_notification(user, client.username + ' liked your post.')
+
         Pusher.trigger('private-' + user.id.to_s, 'receive-like', {
           client: client,
           user:   user,

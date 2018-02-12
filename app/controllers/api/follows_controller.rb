@@ -26,7 +26,7 @@ class Api::FollowsController < ApplicationController
 
     # Follow may not exist if blocking the user
     unless @follow
-      return
+      render json: {} and return
     end
 
     if @follow.destroy
