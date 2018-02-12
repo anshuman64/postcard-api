@@ -29,7 +29,7 @@ class Api::FollowsController < ApplicationController
       return
     end
 
-    if @follow && @follow.destroy
+    if @follow.destroy
       render 'api/follows/show'
     else
       render json: @follow.errors.full_messages, status: 422

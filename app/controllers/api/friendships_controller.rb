@@ -132,7 +132,7 @@ class Api::FriendshipsController < ApplicationController
       return
     end
 
-    if @friendship && @friendship.destroy
+    if @friendship.destroy
       user = User.find(params[:user_id])
 
       Pusher.trigger('private-' + user.id.to_s, 'destroy-friendship', {
