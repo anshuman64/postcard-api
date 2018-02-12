@@ -20,9 +20,4 @@ json.array! @users do |user|
       end
     end
   end
-
-  json.author do
-    json.(@post.author, :id, :username, :avatar_url)
-    json.is_user_followed_by_client @post.author.followers.where('follower_id = ?', @client.id).present?
-  end
 end
