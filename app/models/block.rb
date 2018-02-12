@@ -5,8 +5,4 @@ class Block < ApplicationRecord
   belongs_to(:blocker, class_name: :User, foreign_key: :blocker_id, primary_key: :id)
 
   belongs_to(:blockee, class_name: :User, foreign_key: :blockee_id, primary_key: :id)
-
-  def self.query_blocked_users(user)
-    user.blockees
-  end
 end

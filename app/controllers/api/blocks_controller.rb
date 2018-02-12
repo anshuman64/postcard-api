@@ -6,7 +6,7 @@ class Api::BlocksController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @users = Block.query_blocked_users(@client)
+    @users = @client.blockees
 
     render 'api/users/index'
   end
