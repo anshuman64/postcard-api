@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180212035045) do
+ActiveRecord::Schema.define(version: 20180212055223) do
 
   create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "user_id", null: false
@@ -50,12 +50,13 @@ ActiveRecord::Schema.define(version: 20180212035045) do
   end
 
   create_table "messages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
-    t.text "body", null: false
     t.integer "author_id", null: false
     t.integer "friendship_id", null: false
     t.integer "post_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "body"
+    t.string "image_url"
     t.index ["author_id"], name: "index_messages_on_author_id"
     t.index ["friendship_id"], name: "index_messages_on_friendship_id"
     t.index ["post_id"], name: "index_messages_on_post_id"
