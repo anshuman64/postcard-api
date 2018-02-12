@@ -35,6 +35,7 @@ Rails.application.routes.draw do
     delete 'follows/:followee_id',          to: 'follows#destroy_follow'
 
     # 'Follows' routes
+    get    'blocks',                        to: 'blocks#get_blocked_users'
     post   'blocks',                        to: 'blocks#create_block'
     delete 'blocks/:blockee_id',            to: 'blocks#destroy_block'
 

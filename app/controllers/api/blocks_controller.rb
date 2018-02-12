@@ -1,4 +1,16 @@
 class Api::BlocksController < ApplicationController
+  def get_blocked_users
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @users = Block.query_blocked_users(@client)
+
+    render 'api/users/index'
+  end
+
   def create_block
     client, error = decode_token_and_find_user(request.headers['Authorization'])
 

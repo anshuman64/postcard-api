@@ -127,11 +127,12 @@ class Api::FriendshipsController < ApplicationController
 
     @friendship = Friendship.find_friendship(client.id, params[:user_id])
 
+    # Friendship may not exist if blocking the user
     unless @friendship
-      render json: ['Friendship not found'], status: 404 and return
+      return
     end
 
-    if @friendship.destroy
+    if @friendship && @friendship.destroy
       user = User.find(params[:user_id])
 
       Pusher.trigger('private-' + user.id.to_s, 'destroy-friendship', {
