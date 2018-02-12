@@ -12,7 +12,7 @@ class Message < ApplicationRecord
 
   def validate_message_content
     if self.body.blank? && self.image_url.blank? && self.post_id.blank?
-      self.errors.add :base, 'Require post body, image_url, or post_id'
+      self.errors.add :base, 'Require post body, image_url, or post_id.'
     end
   end
 end
