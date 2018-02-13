@@ -120,6 +120,14 @@ class Api::PostsController < ApplicationController
               message: @message
             })
 
+            # TODO: find a better way to send message data to client
+            Pusher.trigger('private-' + @client.id.to_s, 'create-post-message', {
+              client:  @client,
+              user:    user,
+              post:    @post,
+              message: @message
+            })
+
             next
           else
             render json: ['Sharing posts failed.'], status: 422 and return

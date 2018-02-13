@@ -41,7 +41,5 @@ class Friendship < ApplicationRecord
         0
       end
     end
-
-    friends.reverse
   end
 end
