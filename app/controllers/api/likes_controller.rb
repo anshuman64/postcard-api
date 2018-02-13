@@ -13,12 +13,6 @@ class Api::LikesController < ApplicationController
 
       unless user.id == client.id
         create_notification(user, client.username + ' liked your post.')
-
-        Pusher.trigger('private-' + user.id.to_s, 'receive-like', {
-          client: client,
-          user:   user,
-          like:   @like
-        })
       end
 
       render 'api/likes/show'
