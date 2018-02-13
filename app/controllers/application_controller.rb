@@ -45,14 +45,14 @@ class ApplicationController < ActionController::API
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}]
     }
 
-    begin
-      response = OneSignal::Notification.create(params: params, opts: { auth_key: ENV["ONE_SIGNAL_AUTH_KEY"] })
-      notification_id = JSON.parse(response.body)["id"]
-    rescue OneSignal::OneSignalError => e
-      puts "--- OneSignalError  :"
-      puts "-- message : #{e.message}"
-      puts "-- status : #{e.http_status}"
-      puts "-- body : #{e.http_body}"
-    end
+    # begin
+    #   response = OneSignal::Notification.create(params: params, opts: { auth_key: ENV["ONE_SIGNAL_AUTH_KEY"] })
+    #   notification_id = JSON.parse(response.body)["id"]
+    # rescue OneSignal::OneSignalError => e
+    #   puts "--- OneSignalError  :"
+    #   puts "-- message : #{e.message}"
+    #   puts "-- status : #{e.http_status}"
+    #   puts "-- body : #{e.http_body}"
+    # end
   end
 end

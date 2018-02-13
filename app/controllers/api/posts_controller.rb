@@ -101,17 +101,23 @@ class Api::PostsController < ApplicationController
     if @post.save
       if params[:recipient_ids]
         params[:recipient_ids].each do |recipient_id|
+          # Create share for each recipient
           share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
 
           if share.save
-            user = User.find(recipient_id)
+            # Create message for each recipient
+            friendship = Friendship.find_friendship(@client.id, recipient_id)
+            @message = Message.new({ author_id: @client.id, post_id: @post.id, friendship_id: friendship.id })
+            @message.save
 
-            create_notification(user, @client.username + ' sent you a post!')
-            
+            # Create push notification for each recipient
+            user = User.find(recipient_id)
+            create_notification(user, @client.username + ' shared a post with you!')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
-              client: @client,
-              user:   user,
-              post:   @post
+              client:  @client,
+              user:    user,
+              post:    @post,
+              message: @message
             })
 
             next

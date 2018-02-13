@@ -30,11 +30,16 @@ class Friendship < ApplicationRecord
 
   private
 
-  def sort_friends_by_recent_messages(user_id, friends)
+  def self.sort_friends_by_recent_messages(user_id, friends)
     friends.sort_by! do |friend|
       friendship = Friendship.find_friendship(user_id, friend.id)
 
-      friendship.messages.last.created_at
+      last_message = friendship.messages.last
+      if last_message
+        last_message.created_at
+      else
+        0
+      end
     end
 
     friends.reverse

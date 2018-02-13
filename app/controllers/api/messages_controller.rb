@@ -29,13 +29,17 @@ class Api::MessagesController < ApplicationController
       render json: ['Friendship not found'], status: 404 and return
     end
 
-    @message = Message.new({ author_id: client.id, body: params[:body], friendship_id: friendship.id })
-
-    if params[:post_id]
-      @message.post_id = params[:post_id]
-    end
+    @message = Message.new({ author_id: client.id, body: params[:body], image_url: params[:image_url], friendship_id: friendship.id })
 
     if @message.save
+      user = User.find(params[:recipient_id])
+      create_notification(user, client.username + ' sent you a message.')
+      Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
+        client:  client,
+        user:    user,
+        message: @message
+      })
+
       render 'api/messages/show'
     else
       render json: @message.errors.full_messages, status: 422

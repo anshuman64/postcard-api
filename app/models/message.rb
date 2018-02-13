@@ -1,5 +1,5 @@
 class Message < ApplicationRecord
-  DEFAULT_LIMIT    = 10
+  DEFAULT_LIMIT    = 20
   DEFAULT_START_AT = 1
 
   validates :author_id, :friendship_id, presence: true
@@ -9,7 +9,7 @@ class Message < ApplicationRecord
 
   belongs_to(:friendship, class_name: :Friendship, foreign_key: :friendship_id, primary_key: :id)
 
-  has_one(:post, class_name: :Post, foreign_key: :post_id, primary_key: :id)
+  belongs_to(:post, class_name: :Post, foreign_key: :post_id, primary_key: :id, optional: true)
 
   def self.query_direct_messages(limit, start_at, client_id, user_id)
     friendship = Friendship.find_friendship(client_id, user_id)
