@@ -6,7 +6,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_public_posts(params[:limit], params[:start_at])
+    @posts = Post.query_public_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
@@ -18,7 +18,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true)
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true, @client)
 
     render 'api/posts/index'
   end
@@ -32,7 +32,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false)
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false, @client)
 
     render 'api/posts/index'
   end
@@ -44,7 +44,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true)
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true, @client)
 
     render 'api/posts/index'
   end
@@ -58,7 +58,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false)
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false, @client)
 
     render 'api/posts/index'
   end
@@ -101,16 +101,31 @@ class Api::PostsController < ApplicationController
     if @post.save
       if params[:recipient_ids]
         params[:recipient_ids].each do |recipient_id|
+          # Create share for each recipient
           share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
 
           if share.save
-            user = User.find(recipient_id)
+            # Create message for each recipient
+            friendship = Friendship.find_friendship(@client.id, recipient_id)
+            @message = Message.new({ author_id: @client.id, post_id: @post.id, friendship_id: friendship.id })
+            @message.save
 
-            create_notification(user, @client.username + ' sent you a post!')
+            # Create push notification for each recipient
+            user = User.find(recipient_id)
+            create_notification(user, @client.username + ' shared a post with you!')
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
-              client: @client,
-              user:   user,
-              post:   @post
+              client:  @client,
+              user:    user,
+              post:    @post,
+              message: @message
+            })
+
+            # TODO: find a better way to send message data to client
+            Pusher.trigger('private-' + @client.id.to_s, 'create-post-message', {
+              client:  @client,
+              user:    user,
+              post:    @post,
+              message: @message
             })
 
             next
