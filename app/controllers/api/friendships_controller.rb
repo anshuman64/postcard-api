@@ -63,6 +63,18 @@ class Api::FriendshipsController < ApplicationController
       render json: ['Friendship already exists'], status: 403 and return
     end
 
+    # Return error if requestee has blocked the requester
+    is_client_blocked_by_user = Block.find_by_blocker_id_and_blockee_id(user_id, client.id).present?
+    if is_client_blocked_by_user
+      render json: ['Requester blocked by requestee'], status: 403 and return
+    end
+
+    # Return error if requester has blocked the requestee
+    is_client_blocked_by_user = Block.find_by_blocker_id_and_blockee_id(client.id, user_id).present?
+    if is_client_blocked_by_user
+      render json: ['Requestee blocked by requester'], status: 403 and return
+    end
+
     @friendship = Friendship.new({ requester_id: client.id, requestee_id: user_id })
 
     if @friendship.save
@@ -77,9 +89,9 @@ class Api::FriendshipsController < ApplicationController
 
       # Send event to requestee
       user = User.find(user_id)
-      
+
       create_notification(user, client.username + ' sent you a friend request.')
-      
+
       Pusher.trigger('private-' + user.id.to_s, 'receive-friendship', {
         client:     client,
         user:       user,
