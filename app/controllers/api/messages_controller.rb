@@ -1,12 +1,12 @@
 class Api::MessagesController < ApplicationController
   def get_direct_messages
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
     end
 
-    @messages = Message.query_direct_messages(params[:limit], params[:start_at], client.id, params[:user_id])
+    @messages = Message.query_direct_messages(params[:limit], params[:start_at], @client.id, params[:user_id])
 
     render 'api/messages/index'
   end
@@ -17,25 +17,25 @@ class Api::MessagesController < ApplicationController
   end
 
   def create_message
-    client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
     end
 
-    friendship = Friendship.find_friendship(client.id, params[:recipient_id])
+    friendship = Friendship.find_friendship(@client.id, params[:recipient_id])
 
     unless friendship
       render json: ['Friendship not found'], status: 404 and return
     end
 
-    @message = Message.new({ author_id: client.id, body: params[:body], image_url: params[:image_url], friendship_id: friendship.id })
+    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], friendship_id: friendship.id })
 
     if @message.save
       user = User.find(params[:recipient_id])
-      create_notification(user, client.username + ' sent you a message.')
+      create_notification(user, @client.username + ' sent you a message.')
       Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
-        client:  client,
+        client:  @client,
         user:    user,
         message: @message
       })

@@ -15,6 +15,8 @@ class Post < ApplicationRecord
   has_many(:shares, class_name: :Share, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
   has_many(:share_recipients, through: :shares, source: :recipient)
 
+  has_many(:messages, class_name: :Message, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
+
   def self.query_public_posts(limit, start_at)
     most_recent_post = Post.last
 
