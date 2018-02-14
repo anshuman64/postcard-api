@@ -6,7 +6,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_public_posts(params[:limit], params[:start_at])
+    @posts = Post.query_public_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
@@ -18,7 +18,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true)
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true, @client)
 
     render 'api/posts/index'
   end
@@ -32,7 +32,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false)
+    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false, @client)
 
     render 'api/posts/index'
   end
@@ -44,7 +44,7 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true)
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true, @client)
 
     render 'api/posts/index'
   end
@@ -58,7 +58,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false)
+    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false, @client)
 
     render 'api/posts/index'
   end
