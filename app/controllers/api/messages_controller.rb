@@ -6,7 +6,11 @@ class Api::MessagesController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @messages = Message.query_direct_messages(params[:limit], params[:start_at], @client.id, params[:user_id])
+    if params[:is_new]
+      @messages = Message.query_new_direct_messages(params[:start_at], @client.id, params[:user_id])
+    else
+      @messages = Message.query_direct_messages(params[:limit], params[:start_at], @client.id, params[:user_id])
+    end
 
     render 'api/messages/index'
   end
