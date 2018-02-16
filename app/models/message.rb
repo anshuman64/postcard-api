@@ -26,6 +26,21 @@ class Message < ApplicationRecord
     friendship.messages.where('id < ?', start_at).last(limit).reverse
   end
 
+
+  def self.query_new_direct_messages(start_at, client_id, user_id)
+    friendship = Friendship.find_friendship(client_id, user_id)
+
+    unless friendship
+      return []
+    end
+
+    most_recent_message = friendship.messages.last
+
+    start_at ||= (most_recent_message ? most_recent_message.id : DEFAULT_START_AT)
+
+    friendship.messages.where('id > ?', start_at).reverse
+  end
+
   private
 
   def validate_message_content

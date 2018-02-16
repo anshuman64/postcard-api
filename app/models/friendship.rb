@@ -41,5 +41,7 @@ class Friendship < ApplicationRecord
         DateTime.new(0,1,1)
       end
     end
+
+    friends.reverse
   end
 end
