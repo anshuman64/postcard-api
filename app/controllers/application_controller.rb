@@ -35,6 +35,8 @@ class ApplicationController < ActionController::API
   end
 
   def create_notification(recipient, message, data)
+    title = data[:type] == 'receive-message' ? { en: data[:client][:username] } : nil
+
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
       contents: { en: message },
@@ -43,7 +45,9 @@ class ApplicationController < ActionController::API
       android_led_color: '007aff',
       android_accent_color: '007aff',
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}],
-      data: data
+      data: data,
+      headings: title,
+      collapse_id: data[:client][:id]
     }
 
     begin
