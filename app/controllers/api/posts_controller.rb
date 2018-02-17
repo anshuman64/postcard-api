@@ -112,7 +112,7 @@ class Api::PostsController < ApplicationController
 
             # Create push notification for each recipient
             user = User.find(recipient_id)
-            create_notification(user, @client.username + ' shared a post with you!')
+            create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post, message: @message })
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client:  @client,
               user:    user,

@@ -37,7 +37,7 @@ class Api::MessagesController < ApplicationController
 
     if @message.save
       user = User.find(params[:recipient_id])
-      create_notification(user, @client.username + ' sent you a message.')
+      create_notification(user, @client.username + ' sent you a message.', { type: 'receive-message', client: @client, user: user, friendship: @message })
       Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
         client:  @client,
         user:    user,
