@@ -28,6 +28,10 @@ class Friendship < ApplicationRecord
     user.friends_as_requestee.where('status = ?', 'REQUESTED')
   end
 
+  def self.query_friends_from_contacts(contacts)
+    User.where('phone_number IN (?)', contacts)
+  end
+
   private
 
   def self.sort_friends_by_recent_messages(user_id, friends)

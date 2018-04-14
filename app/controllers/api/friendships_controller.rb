@@ -11,6 +11,18 @@ class Api::FriendshipsController < ApplicationController
     render 'api/users/index'
   end
 
+  def get_friends_from_contacts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @users = Friendship.query_friends_from_contacts(params[:contacts])
+
+    render 'api/users/index'
+  end
+
   def get_sent_requests
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
