@@ -9,8 +9,6 @@ class Message < ApplicationRecord
 
   belongs_to(:friendship, class_name: :Friendship, foreign_key: :friendship_id, primary_key: :id)
 
-  belongs_to(:post, class_name: :Post, foreign_key: :post_id, primary_key: :id, optional: true)
-
   def self.query_direct_messages(limit, start_at, client_id, user_id)
     friendship = Friendship.find_friendship(client_id, user_id)
 
@@ -44,8 +42,8 @@ class Message < ApplicationRecord
   private
 
   def validate_message_content
-    if self.body.blank? && self.image_url.blank? && self.post_id.blank?
-      self.errors.add :base, 'Require post body, image_url, or post_id.'
+    if self.body.blank? && self.image_url.blank?
+      self.errors.add :base, 'Require body or image_url.'
     end
   end
 end
