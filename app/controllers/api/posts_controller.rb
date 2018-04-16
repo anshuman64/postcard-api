@@ -105,27 +105,13 @@ class Api::PostsController < ApplicationController
           share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
 
           if share.save
-            # Create message for each recipient
-            friendship = Friendship.find_friendship(@client.id, recipient_id)
-            @message = Message.new({ author_id: @client.id, post_id: @post.id, friendship_id: friendship.id })
-            @message.save
-
             # Create push notification for each recipient
             user = User.find(recipient_id)
-            create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post, message: @message })
+            create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post })
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client:  @client,
               user:    user,
-              post:    @post,
-              message: @message
-            })
-
-            # TODO: find a better way to send message data to client
-            Pusher.trigger('private-' + @client.id.to_s, 'create-post-message', {
-              client:  @client,
-              user:    user,
-              post:    @post,
-              message: @message
+              post:    @post
             })
 
             next
