@@ -30,6 +30,11 @@ class Friendship < ApplicationRecord
 
   def self.query_friends_from_contacts(user, contacts)
     friends = user.friends_as_requester | user.friends_as_requestee
+
+    if friends.empty?
+      friends = -1
+    end
+
     User.where('phone_number IN (?) and id NOT IN (?)', contacts, friends)
   end
 
