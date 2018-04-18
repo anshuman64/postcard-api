@@ -28,6 +28,11 @@ class Friendship < ApplicationRecord
     user.friends_as_requestee.where('status = ?', 'REQUESTED')
   end
 
+  def self.query_friends_from_contacts(user, contacts)
+    friends = user.friends_as_requester | user.friends_as_requestee
+    User.where('phone_number IN (?) and id NOT IN (?)', contacts, friends)
+  end
+
   private
 
   def self.sort_friends_by_recent_messages(user_id, friends)
@@ -44,4 +49,5 @@ class Friendship < ApplicationRecord
 
     friends.reverse
   end
+
 end
