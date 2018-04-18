@@ -28,8 +28,9 @@ class Friendship < ApplicationRecord
     user.friends_as_requestee.where('status = ?', 'REQUESTED')
   end
 
-  def self.query_friends_from_contacts(contacts)
-    User.where('phone_number IN (?)', contacts)
+  def self.query_friends_from_contacts(user, contacts)
+    friends = user.friends_as_requester | user.friends_as_requestee
+    User.where('phone_number IN (?) and id NOT IN (?)', contacts, friends)
   end
 
   private

@@ -42,7 +42,7 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @users = Friendship.query_friends_from_contacts(params[:contacts].split(','))
+    @users = Friendship.query_friends_from_contacts(@client, params[:contacts].split(','))
 
     render 'api/users/index'
   end
