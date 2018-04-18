@@ -16,7 +16,7 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid })
+    @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
 
     if @client.save
       render 'api/users/show'
