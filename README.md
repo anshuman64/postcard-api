@@ -23,7 +23,7 @@ export PUSHER_SECRET='Ask Anshuman for the key'
 7. In terminal, make sure latest code is committed to master branch in git
 8. In terminal, type:
 ````
-eb deploy insiya-production-1
+eb deploy insiya-production-server-1
 ````
 9. Wait for environment to update in AWS Console...
 10. On Elastic Beanstalk application page, click 'Actions' > 'Swap Environment URLs'
