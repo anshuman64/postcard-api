@@ -33,13 +33,20 @@ class Api::MessagesController < ApplicationController
       render json: ['Friendship not found'], status: 404 and return
     end
 
-    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], friendship_id: friendship.id })
+    # If message in the same convo with the same post exists, don't recreate it
+    if Message.where('author_id = ? and friendship_id = ? and post_id = ?', @client.id, friendship.id, params[:post_id]).exists?
+      render json: ['Post as message already exists'], status: 403 and return
+    end
+
+    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], friendship_id: friendship.id })
 
     if @message.save
       user = User.find(params[:recipient_id])
 
       if @message.body
         message_preview = @message.body
+      elsif @message.post_id
+        message_preview = 'Clicked on your post.'
       else
         message_preview = 'Sent you an image.'
       end
