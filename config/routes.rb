@@ -54,5 +54,10 @@ Rails.application.routes.draw do
     get    'messages/direct/:user_id', to: 'messages#get_direct_messages'
     get    'messages/group/:group_id', to: 'messages#get_group_messages'
     post   'messages',                 to: 'messages#create_message'
+
+    # 'Circles' routes
+    get    'circles',                  to: 'circles#get_circles'
+    post   'circles',                  to: 'circles#create_circle'
+    delete 'circles/:id',              to: 'circles#destroy_circle'
   end
 end

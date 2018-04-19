@@ -7,10 +7,11 @@ class Api::PusherController < ApplicationController
     end
 
     authorized_channel = 'private-' + client.id.to_s
+    Pusher.timeout = 30
 
     if authorized_channel == params[:channel_name]
       response = Pusher.authenticate(params[:channel_name], params[:socket_id])
-      
+
       render json: response
     else
       render json: ['Unauthorized request to Pusher'], status: '403'
