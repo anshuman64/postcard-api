@@ -1,0 +1,2 @@
+class Circling < ApplicationRecord
+end
