@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180216221716) do
+ActiveRecord::Schema.define(version: 20180419140003) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -19,6 +19,23 @@ ActiveRecord::Schema.define(version: 20180216221716) do
     t.datetime "updated_at", null: false
     t.index ["blockee_id"], name: "index_blocks_on_blockee_id"
     t.index ["blocker_id"], name: "index_blocks_on_blocker_id"
+  end
+
+  create_table "circles", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "creator_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["creator_id"], name: "index_circles_on_creator_id"
+  end
+
+  create_table "circlings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "circle_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["circle_id"], name: "index_circlings_on_circle_id"
+    t.index ["user_id"], name: "index_circlings_on_user_id"
   end
 
   create_table "flags", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
