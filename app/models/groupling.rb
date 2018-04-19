@@ -1,0 +1,2 @@
+class Groupling < ApplicationRecord
+end

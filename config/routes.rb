@@ -59,5 +59,10 @@ Rails.application.routes.draw do
     get    'circles',                  to: 'circles#get_circles'
     post   'circles',                  to: 'circles#create_circle'
     delete 'circles/:id',              to: 'circles#destroy_circle'
+
+    # 'Groups' routes
+    get    'groups',                  to: 'groups#get_groups'
+    post   'groups',                  to: 'groups#create_group'
+    delete 'groups/:id',              to: 'groups#destroy_group'
   end
 end
