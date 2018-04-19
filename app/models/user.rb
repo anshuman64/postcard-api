@@ -29,4 +29,6 @@ class User < ApplicationRecord
   has_many(:received_posts, through: :received_shares, source: :post)
 
   has_many(:messages, class_name: :Message, foreign_key: :author_id, primary_key: :id, dependent: :destroy)
+
+  has_many(:circles, class_name: :Circle, foreign_key: :creator_id, primary_key: :id, dependent: :destroy)
 end
