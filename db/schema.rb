@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180420171625) do
+ActiveRecord::Schema.define(version: 20180420182154) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -120,10 +120,12 @@ ActiveRecord::Schema.define(version: 20180420171625) do
   end
 
   create_table "shares", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
-    t.integer "recipient_id", null: false
+    t.integer "recipient_id"
     t.integer "post_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id"
+    t.index ["group_id"], name: "index_shares_on_group_id"
     t.index ["post_id"], name: "index_shares_on_post_id"
     t.index ["recipient_id"], name: "index_shares_on_recipient_id"
   end

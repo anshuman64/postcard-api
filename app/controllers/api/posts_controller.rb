@@ -121,6 +121,29 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      if params[:group_ids]
+        params[:group_ids].each do |group_id|
+          # Create share for each recipient
+          puts group_id
+          share = Share.new({ post_id: @post.id, group_id: group_id })
+
+          if share.save
+            # Create push notification for each recipient
+            # user = User.find(recipient_id)
+            # create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post, message: @message })
+            # Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
+            #   client:  @client,
+            #   user:    user,
+            #   post:    @post
+            # })
+
+            next
+          else
+            render json: ['Sharing posts failed.'], status: 422 and return
+          end
+        end
+      end
+
       render 'api/posts/show'
     else
       render json: @post.errors.full_messages, status: 422
