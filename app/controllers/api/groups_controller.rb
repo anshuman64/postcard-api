@@ -50,4 +50,26 @@ class Api::GroupsController < ApplicationController
     end
   end
 
+  def edit_group
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @group = Group.find(params[:group_id])
+
+    if @group.update(group_params)
+      render 'api/groups/show'
+    else
+      render json: @group.errors.full_messages, status: 422
+    end
+  end
+
+  private
+
+  def group_params
+    params.permit(:name)
+  end
+
 end
