@@ -50,6 +50,32 @@ class Api::GroupsController < ApplicationController
     end
   end
 
+  def destroy_groupling
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @group = Group.find(params[:id])
+
+    unless @group
+      render json: ['Group not found'], status: 404 and return
+    end
+
+    groupling = Groupling.find_by_group_id_and_user_id(params[:id], params[:user_id])
+
+    unless groupling
+      render json: ['User not found'], status: 404 and return
+    end
+
+    if groupling.destroy
+      render 'api/groups/show'
+    else
+      render json: @group.errors.full_messages, status: 422
+    end
+  end
+
   def edit_group
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
