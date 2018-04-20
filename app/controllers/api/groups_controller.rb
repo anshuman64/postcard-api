@@ -11,14 +11,14 @@ class Api::GroupsController < ApplicationController
       render json: ['Minimum 2 user_ids required'], status: 403 and return
     end
 
-    @group = Group.new({ owner_id: @client.id, name: params[:name] })
+    @group = Group.new({ owner_id: @client.id })
 
     if @group.save
       params[:user_ids].each do |user_id|
-        # Create circling for each user
-        circling = Groupling.new({ group_id: @group.id, user_id: user_id })
+        # Create groupling for each user
+        groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
 
-        if circling.save
+        if groupling.save
           next
         else
           render json: ['Creating group failed.'], status: 422 and return
