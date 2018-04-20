@@ -5,9 +5,13 @@ json.array! @groups do |group|
 
   json.peek_message do
     message = group.messages.last
-  
+
     if message
       json.(message, :id, :body, :author_id, :image_url, :friendship_id, :group_id, :post_id, :created_at, :updated_at)
+
+      json.author do
+        json.(message.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_url, :is_banned, :created_at, :updated_at)
+      end
 
       if message.post
         json.post do

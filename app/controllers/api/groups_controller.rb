@@ -11,6 +11,20 @@ class Api::GroupsController < ApplicationController
     render 'api/groups/index'
   end
 
+  def get_users_from_group
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    group = Group.find(params[:id])
+
+    @users = group.groupling_users
+
+    render 'api/users/index'
+  end
+
   def create_group
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
