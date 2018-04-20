@@ -31,4 +31,8 @@ class User < ApplicationRecord
   has_many(:messages, class_name: :Message, foreign_key: :author_id, primary_key: :id, dependent: :destroy)
 
   has_many(:circles, class_name: :Circle, foreign_key: :creator_id, primary_key: :id, dependent: :destroy)
+
+  has_many(:owned_groups, class_name: :Group, foreign_key: :owner_id, primary_key: :id, dependent: :destroy)
+  has_many(:grouplings, class_name: :Groupling, foreign_key: :user_id, primary_key: :id, dependent: :destroy)
+  has_many(:groups, through: :grouplings, source: :group)
 end

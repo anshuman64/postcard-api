@@ -48,7 +48,7 @@ class Friendship < ApplicationRecord
       if last_message
         last_message.created_at
       else
-        DateTime.new(0,1,1)
+        friendship.created_at
       end
     end
 

@@ -6,5 +6,5 @@ class Group < ApplicationRecord
   has_many(:grouplings, class_name: :Groupling, foreign_key: :group_id, primary_key: :id, dependent: :destroy)
   has_many(:groupling_users, through: :grouplings, source: :user)
 
-
+  has_many(:messages, class_name: :Message, foreign_key: :group_id, primary_key: :id, dependent: :destroy)
 end

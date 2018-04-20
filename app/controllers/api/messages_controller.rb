@@ -16,8 +16,19 @@ class Api::MessagesController < ApplicationController
   end
 
   def get_group_messages
-    # TODO: This method is here when we add support for group message threads
-    # It is here right now just to make it easy to pick up when we start that project
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    if params[:is_new]
+      @messages = Message.query_new_group_messages(params[:start_at], params[:group_id])
+    else
+      @messages = Message.query_group_messages(params[:limit], params[:start_at], params[:group_id])
+    end
+
+    render 'api/messages/index'
   end
 
   def create_message
