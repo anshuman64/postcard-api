@@ -19,7 +19,7 @@ class Api::GroupsController < ApplicationController
     end
 
     if params[:user_ids].size < 2
-      render json: ['Minimum 2 user_ids required'], status: 403 and return
+      render json: ['Minimum 2 recipients required'], status: 403 and return
     end
 
     @group = Group.new({ owner_id: @client.id })
@@ -70,6 +70,20 @@ class Api::GroupsController < ApplicationController
     end
 
     if groupling.destroy
+      if @group[:owner_id] == params[:user_id].to_i
+        # If there's no one left in the group, destroy it
+        if @group.groupling_users.size == 0
+          unless @group.destroy
+            render json: @group.errors.full_messages, status: 422
+          end
+        # If the client is leaving, change the owner
+        else
+          unless Group.update(@group.id, :owner_id => @group.groupling_users[0].id)
+            render json: @group.errors.full_messages, status: 422
+          end
+        end
+      end
+
       render 'api/groups/show'
     else
       render json: @group.errors.full_messages, status: 422
@@ -86,6 +100,30 @@ class Api::GroupsController < ApplicationController
     @group = Group.find(params[:group_id])
 
     if @group.update(group_params)
+      render 'api/groups/show'
+    else
+      render json: @group.errors.full_messages, status: 422
+    end
+  end
+
+  def destroy_group
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @group = Group.find(params[:id])
+
+    unless @group
+      render json: ['Post not found'], status: 404 and return
+    end
+
+    unless @group[:owner_id] == @client.id
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    if @group.destroy
       render 'api/groups/show'
     else
       render json: @group.errors.full_messages, status: 422
