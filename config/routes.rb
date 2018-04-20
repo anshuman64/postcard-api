@@ -53,7 +53,8 @@ Rails.application.routes.draw do
     # It will be used when we add group messaging
     get    'messages/direct/:user_id', to: 'messages#get_direct_messages'
     get    'messages/group/:group_id', to: 'messages#get_group_messages'
-    post   'messages',                 to: 'messages#create_message'
+    post   'messages/direct',          to: 'messages#create_direct_message'
+    post   'messages/group',           to: 'messages#create_group_message'
 
     # 'Circles' routes
     get    'circles',                  to: 'circles#get_circles'

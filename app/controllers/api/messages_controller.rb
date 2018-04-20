@@ -31,7 +31,7 @@ class Api::MessagesController < ApplicationController
     render 'api/messages/index'
   end
 
-  def create_message
+  def create_direct_message
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
@@ -62,7 +62,7 @@ class Api::MessagesController < ApplicationController
         message_preview = 'Sent you an image.'
       end
 
-      create_notification(user, message_preview, { type: 'receive-message', client: @client, user: user, friendship: @message })
+      create_notification(user, message_preview, { type: 'receive-message', client: @client })
       Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
         client:  @client,
         user:    user,
@@ -74,4 +74,49 @@ class Api::MessagesController < ApplicationController
       render json: @message.errors.full_messages, status: 422
     end
   end
+
+  def create_group_message
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    group = Group.find(params[:recipient_id])
+
+    unless group
+      render json: ['Group not found'], status: 404 and return
+    end
+
+    # If message in the same convo with the same post exists, don't recreate it
+    # if Message.where('author_id = ? and friendship_id = ? and post_id = ?', @client.id, friendship.id, params[:post_id]).exists?
+    #   render json: ['Post as message already exists'], status: 403 and return
+    # end
+
+    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
+
+    if @message.save
+      # user = User.find(params[:recipient_id])
+      #
+      # if @message.body
+      #   message_preview = @message.body
+      # elsif @message.post_id
+      #   message_preview = 'Clicked on your post.'
+      # else
+      #   message_preview = 'Sent you an image.'
+      # end
+      #
+      # create_notification(user, message_preview, { type: 'receive-message', client: @client })
+      # Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
+      #   client:  @client,
+      #   user:    user,
+      #   message: @message
+      # })
+
+      render 'api/messages/show'
+    else
+      render json: @message.errors.full_messages, status: 422
+    end
+  end
+
 end
