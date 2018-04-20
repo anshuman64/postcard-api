@@ -75,6 +75,7 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
+  # TODO: get posts from groups
   def get_received_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 

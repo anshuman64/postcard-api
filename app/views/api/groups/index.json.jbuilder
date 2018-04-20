@@ -1,7 +1,7 @@
 json.array! @groups do |group|
   json.(group, :id, :owner_id, :name, :created_at, :updated_at)
 
-  json.user_ids group.groupling_users.ids
+  json.users group.groupling_users.where('user_id != ?', @client.id)
 
   json.peek_message do
     message = group.messages.last
