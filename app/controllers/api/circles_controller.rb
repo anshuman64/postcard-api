@@ -18,8 +18,8 @@ class Api::CirclesController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    if params[:user_ids].size < 2
-      render json: ['Minimum 2 user_ids required'], status: 403 and return
+    if params[:user_ids].size + params[:group_ids].size < 2
+      render json: ['Minimum 2 recipients required'], status: 403 and return
     end
 
     @circle = Circle.new({ creator_id: @client.id, name: params[:name] })
@@ -28,6 +28,17 @@ class Api::CirclesController < ApplicationController
       params[:user_ids].each do |user_id|
         # Create circling for each user
         circling = Circling.new({ circle_id: @circle.id, user_id: user_id })
+
+        if circling.save
+          next
+        else
+          render json: ['Creating circle failed.'], status: 422 and return
+        end
+      end
+
+      params[:group_ids].each do |group_id|
+        # Create circling for each user
+        circling = Circling.new({ circle_id: @circle.id, group_id: group_id })
 
         if circling.save
           next

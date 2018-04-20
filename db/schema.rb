@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180420000423) do
+ActiveRecord::Schema.define(version: 20180420171625) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -31,10 +31,12 @@ ActiveRecord::Schema.define(version: 20180420000423) do
 
   create_table "circlings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "circle_id", null: false
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id"
     t.index ["circle_id"], name: "index_circlings_on_circle_id"
+    t.index ["group_id"], name: "index_circlings_on_group_id"
     t.index ["user_id"], name: "index_circlings_on_user_id"
   end
 

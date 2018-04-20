@@ -6,4 +6,5 @@ class Circle < ApplicationRecord
 
   has_many(:circlings, class_name: :Circling, foreign_key: :circle_id, primary_key: :id, dependent: :destroy)
   has_many(:circling_users, through: :circlings, source: :user)
+  has_many(:circling_groups, through: :circlings, source: :group)
 end
