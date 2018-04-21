@@ -64,6 +64,7 @@ Rails.application.routes.draw do
     # 'Groups' routes
     get    'groups',                  to: 'groups#get_groups'
     post   'groups',                  to: 'groups#create_group'
+    post   'groups/add',              to: 'groups#create_grouplings'
     put    'groups',                  to: 'groups#edit_group'
     delete 'groups/:id',              to: 'groups#destroy_group'
     delete 'groups/:id/:user_id',     to: 'groups#destroy_groupling'

@@ -50,6 +50,29 @@ class Api::GroupsController < ApplicationController
     end
   end
 
+  def create_grouplings
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @group = Group.find(params[:group_id])
+
+    params[:user_ids].each do |user_id|
+      # Create groupling for each user
+      groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
+
+      if groupling.save
+        next
+      else
+        render json: ['Creating group failed.'], status: 422 and return
+      end
+    end
+
+    render 'api/groups/show'
+  end
+
   def destroy_groupling
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
