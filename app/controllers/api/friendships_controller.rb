@@ -96,7 +96,7 @@ class Api::FriendshipsController < ApplicationController
       end
 
       # Send event to requestee
-      create_notification(@client, user_id, nil, client.username + ' sent you a friend request.', { type: 'receive-friendship' })
+      create_notification(client.id, user_id, nil, client.username + ' sent you a friend request.', { type: 'receive-friendship' })
       Pusher.trigger('private-' + user_id.to_s, 'receive-friendship', { client: client })
 
       render 'api/friendships/show'
@@ -120,7 +120,7 @@ class Api::FriendshipsController < ApplicationController
     end
 
     if @friendship.update({ status: 'ACCEPTED' })
-      create_notification(@client, user_id, nil, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
+      create_notification(client.id, user_id, nil, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
       Pusher.trigger('private-' + user_id.to_s, 'receive-accepted-friendship', { client: client })
 
       render 'api/friendships/show'

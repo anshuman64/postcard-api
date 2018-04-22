@@ -51,7 +51,7 @@ class Api::MessagesController < ApplicationController
 
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], friendship_id: friendship.id })
 
-    if @message.save=
+    if @message.save
       if @message.body
         message_preview = @message.body
       elsif @message.post_id
@@ -61,7 +61,7 @@ class Api::MessagesController < ApplicationController
       end
 
       user_id = params[:recipient_id]
-      create_notification(@client, user_id, { en: @client[:username] }, message_preview, { type: 'receive-message', client_id: @client.id })
+      create_notification(@client.id, user_id, { en: @client[:username] }, message_preview, { type: 'receive-message', client_id: @client.id })
       Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
         client_id:  @client.id,
         message: @message
@@ -104,7 +104,7 @@ class Api::MessagesController < ApplicationController
 
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
         title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
-        create_notification(@client, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
+        create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
         Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
           group_id:  group.id,
           message: @message

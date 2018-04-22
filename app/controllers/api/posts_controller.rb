@@ -131,7 +131,7 @@ class Api::PostsController < ApplicationController
       user_ids = user_ids.uniq
       user_ids.each do |user_id|
         unless user_id == @client.id
-          create_notification(@client, user_id, nil, @client.username + ' shared a post!', { type: 'receive-post' })
+          create_notification(@client.id, user_id, nil, @client.username + ' shared a post!', { type: 'receive-post' })
           Pusher.trigger('private-' + user_id.to_s, 'receive-post', {
             user_id: user_id,
             post:    @post

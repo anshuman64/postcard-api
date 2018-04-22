@@ -34,7 +34,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_notification(client, recipient_id, title, message, data)
+  def create_notification(client_id, recipient_id, title, message, data)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
       contents: { en: message },
@@ -45,7 +45,7 @@ class ApplicationController < ActionController::API
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
-      collapse_id: client[:id]
+      collapse_id: client_id
     }
 
     begin
