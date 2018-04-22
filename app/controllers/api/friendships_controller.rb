@@ -54,7 +54,7 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    user_id = params[:requestee_id]
+    user_id = params[:user_id]
 
     # TODO: make "friend by username" a different endpoint
     if params[:username]
@@ -92,23 +92,12 @@ class Api::FriendshipsController < ApplicationController
     if @friendship.save
       # Send event to client with user info if user added by username
       if user
-        Pusher.trigger('private-' + client.id.to_s, 'create-friendship', {
-          client:     client,
-          user:       user,
-          friendship: @friendship
-        })
+        Pusher.trigger('private-' + client.id.to_s, 'create-friendship', { user: user })
       end
 
       # Send event to requestee
-      user = User.find(user_id)
-
-      create_notification(user, client.username + ' sent you a friend request.', { type: 'receive-friendship' })
-
-      Pusher.trigger('private-' + user.id.to_s, 'receive-friendship', {
-        client:     client,
-        user:       user,
-        friendship: @friendship
-      })
+      create_notification(user_id, client.username + ' sent you a friend request.', { type: 'receive-friendship' })
+      Pusher.trigger('private-' + user_id.to_s, 'receive-friendship', { client: client })
 
       render 'api/friendships/show'
     else
@@ -123,22 +112,16 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @friendship = Friendship.find_by_requester_id_and_requestee_id(params[:requester_id], client.id)
+    user_id = params[:user_id]
+    @friendship = Friendship.find_by_requester_id_and_requestee_id(user_id, client.id)
 
     unless @friendship
       render json: ['Friendship not found'], status: 404 and return
     end
 
     if @friendship.update({ status: 'ACCEPTED' })
-      user = User.find(params[:requester_id])
-
-      create_notification(user, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
-
-      Pusher.trigger('private-' + user.id.to_s, 'receive-accepted-friendship', {
-        client:     client,
-        user:       user,
-        friendship: @friendship
-      })
+      create_notification(user_id, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
+      Pusher.trigger('private-' + user_id.to_s, 'receive-accepted-friendship', { client: client })
 
       render 'api/friendships/show'
     else
@@ -153,7 +136,8 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @friendship = Friendship.find_friendship(client.id, params[:user_id])
+    user_id = params[:user_id]
+    @friendship = Friendship.find_friendship(client.id, user_id)
 
     # Friendship may not exist if blocking the user
     unless @friendship
@@ -161,13 +145,7 @@ class Api::FriendshipsController < ApplicationController
     end
 
     if @friendship.destroy
-      user = User.find(params[:user_id])
-
-      Pusher.trigger('private-' + user.id.to_s, 'destroy-friendship', {
-        client:     client,
-        user:       user,
-        friendship: @friendship
-      })
+      Pusher.trigger('private-' + user_id.to_s, 'destroy-friendship', { friendship: @friendship })
 
       render 'api/friendships/show'
     else

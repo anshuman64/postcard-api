@@ -51,9 +51,7 @@ class Api::MessagesController < ApplicationController
 
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], friendship_id: friendship.id })
 
-    if @message.save
-      user = User.find(params[:recipient_id])
-
+    if @message.save=
       if @message.body
         message_preview = @message.body
       elsif @message.post_id
@@ -62,10 +60,10 @@ class Api::MessagesController < ApplicationController
         message_preview = 'Sent you an image.'
       end
 
-      create_notification(user, message_preview, { type: 'receive-message', client: @client })
-      Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
+      user_id = params[:recipient_id]
+      create_notification(user_id, message_preview, { type: 'receive-message', client: @client })
+      Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
         client:  @client,
-        user:    user,
         message: @message
       })
 
