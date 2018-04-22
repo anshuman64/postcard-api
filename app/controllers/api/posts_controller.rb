@@ -75,7 +75,6 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
-  # TODO: get posts from groups
   def get_received_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
@@ -98,21 +97,16 @@ class Api::PostsController < ApplicationController
     is_public = params[:is_public] || false
 
     @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
+    user_ids = []
 
     if @post.save
       if params[:recipient_ids]
+        user_ids += params[:recipient_ids]
         params[:recipient_ids].each do |recipient_id|
           # Create share for each recipient
           share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
 
           if share.save
-            # Create push notification for each recipient
-            create_notification(@client, recipient_id, nil, @client.username + ' shared a post with you!', { type: 'receive-post' })
-            Pusher.trigger('private-' + recipient_id.to_s, 'receive-post', {
-              user_id: recipient_id,
-              post:    @post
-            })
-
             next
           else
             render json: ['Sharing posts failed.'], status: 422 and return
@@ -124,21 +118,24 @@ class Api::PostsController < ApplicationController
         params[:group_ids].each do |group_id|
           # Create share for each recipient
           share = Share.new({ post_id: @post.id, group_id: group_id })
+          user_ids += Group.find(group_id).groupling_users.pluck(:id)
 
           if share.save
-            # Create push notification for each recipient
-            # user = User.find(recipient_id)
-            # create_notification(@client, user, @client.username + ' shared a post with you!', { type: 'receive-post' })
-            # Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
-            #   client:  @client,
-            #   user:    user,
-            #   post:    @post
-            # })
-
             next
           else
             render json: ['Sharing posts failed.'], status: 422 and return
           end
+        end
+      end
+
+      user_ids = user_ids.uniq
+      user_ids.each do |user_id|
+        unless user_id == @client.id
+          create_notification(@client, user_id, nil, @client.username + ' shared a post!', { type: 'receive-post' })
+          Pusher.trigger('private-' + user_id.to_s, 'receive-post', {
+            user_id: user_id,
+            post:    @post
+          })
         end
       end
 

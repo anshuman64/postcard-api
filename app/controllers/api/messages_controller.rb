@@ -103,7 +103,7 @@ class Api::MessagesController < ApplicationController
       end
 
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
-        title = group[:name].nil? ? @client[:username] : group[:name]
+        title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
         create_notification(@client, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
         Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
           group_id:  group.id,

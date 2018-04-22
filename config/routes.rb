@@ -49,8 +49,6 @@ Rails.application.routes.draw do
     delete 'friendships/:user_id',     to: 'friendships#destroy_friendship'
 
     # 'Messages' routes
-    # TODO: The messages/group route is currently stale
-    # It will be used when we add group messaging
     get    'messages/direct/:user_id', to: 'messages#get_direct_messages'
     get    'messages/group/:group_id', to: 'messages#get_group_messages'
     post   'messages/direct',          to: 'messages#create_direct_message'
