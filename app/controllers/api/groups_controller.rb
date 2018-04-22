@@ -25,6 +25,7 @@ class Api::GroupsController < ApplicationController
     @group = Group.new({ owner_id: @client.id })
 
     if @group.save
+
       # Create groupling for client
       client_groupling = Groupling.new({ group_id: @group.id, user_id: @client.id })
 
@@ -38,10 +39,19 @@ class Api::GroupsController < ApplicationController
         groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
 
         if groupling.save
+
           next
         else
           render json: ['Creating group failed.'], status: 422 and return
         end
+      end
+
+      # Send pusher update to all members
+      pusher_group = @group.attributes
+      @group.groupling_users.where('user_id != ?', @client.id).each do |user|
+        pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
+        create_notification(@client, user.id, @client.username + ' added you to a group.', { type: 'receive-group' })
+        Pusher.trigger('private-' + user.id.to_s, 'receive-group', { group: pusher_group })
       end
 
       render 'api/groups/show'
@@ -70,6 +80,18 @@ class Api::GroupsController < ApplicationController
       end
     end
 
+    # Send pusher update to all members
+    pusher_group = @group.attributes
+    @group.groupling_users.where('user_id != ?', @client.id).each do |user|
+      pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
+      if params[:user_ids].include?(user.id)
+        create_notification(@client, user.id, @client.username + ' added you to a group.', { type: 'receive-group' })
+        Pusher.trigger('private-' + user.id.to_s, 'receive-group', { group: pusher_group })
+      else
+        Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })
+      end
+    end
+
     render 'api/groups/show'
   end
 
@@ -86,14 +108,15 @@ class Api::GroupsController < ApplicationController
       render json: ['Group not found'], status: 404 and return
     end
 
-    groupling = Groupling.find_by_group_id_and_user_id(params[:id], params[:user_id])
+    user_id = params[:user_id]
+    groupling = Groupling.find_by_group_id_and_user_id(params[:id], user_id)
 
     unless groupling
       render json: ['User not found'], status: 404 and return
     end
 
     if groupling.destroy
-      if @group[:owner_id] == params[:user_id].to_i
+      if @group[:owner_id] == user_id.to_i
         # If there's no one left in the group, destroy it
         if @group.groupling_users.size == 0
           unless @group.destroy
@@ -101,10 +124,25 @@ class Api::GroupsController < ApplicationController
           end
         # If the client is leaving, change the owner
         else
-          unless Group.update(@group.id, :owner_id => @group.groupling_users[0].id)
+          next_owner = @group.groupling_users[0]
+          if Group.update(@group.id, :owner_id => next_owner.id)
+            pusher_group = @group.attributes
+            pusher_group[:users] = @group.groupling_users.where('user_id != ?', next_owner.id).as_json
+            Pusher.trigger('private-' + next_owner.id.to_s, 'edit-group', { group: pusher_group })
+          else
             render json: @group.errors.full_messages, status: 422
           end
         end
+      end
+
+      # Update removed user using Pusher
+      Pusher.trigger('private-' + user_id.to_s, 'remove-group', { group_id: @group.id })
+
+      # Send pusher update to all other members
+      pusher_group = @group.attributes
+      @group.groupling_users.where('user_id != ? and user_id != ?', @client.id, user_id).each do |user|
+        pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
+        Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })
       end
 
       render 'api/groups/show'
@@ -123,6 +161,13 @@ class Api::GroupsController < ApplicationController
     @group = Group.find(params[:group_id])
 
     if @group.update(group_params)
+      # Send pusher update to all other members
+      pusher_group = @group.attributes
+      @group.groupling_users.where('user_id != ?', @client.id).each do |user|
+        pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
+        Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })
+      end
+
       render 'api/groups/show'
     else
       render json: @group.errors.full_messages, status: 422
@@ -144,6 +189,11 @@ class Api::GroupsController < ApplicationController
 
     unless @group[:owner_id] == @client.id
       render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    # Update all members using Pusher
+    @group.grouplings.where('user_id != ?', @client.id).each do |groupling|
+      Pusher.trigger('private-' + groupling.user_id.to_s, 'remove-group', { group_id: @group.id })
     end
 
     if @group.destroy
