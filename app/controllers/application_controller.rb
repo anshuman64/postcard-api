@@ -34,7 +34,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_notification(recipient, message, data)
+  def create_notification(recipient_id, message, data)
     title = data[:type] == 'receive-message' ? { en: data[:client][:username] } : nil
 
     params = {
@@ -44,7 +44,7 @@ class ApplicationController < ActionController::API
       ios_badgeCount: 1,
       android_led_color: '007aff',
       android_accent_color: '007aff',
-      filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}],
+      filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
       collapse_id: data[:client][:id]

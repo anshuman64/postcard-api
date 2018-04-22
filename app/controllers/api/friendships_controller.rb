@@ -102,7 +102,7 @@ class Api::FriendshipsController < ApplicationController
       # Send event to requestee
       user = User.find(user_id)
 
-      create_notification(user, client.username + ' sent you a friend request.', { type: 'receive-friendship', client: client, user: user, friendship: @friendship })
+      create_notification(user, client.username + ' sent you a friend request.', { type: 'receive-friendship' })
 
       Pusher.trigger('private-' + user.id.to_s, 'receive-friendship', {
         client:     client,
@@ -132,7 +132,7 @@ class Api::FriendshipsController < ApplicationController
     if @friendship.update({ status: 'ACCEPTED' })
       user = User.find(params[:requester_id])
 
-      create_notification(user, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship', client: client, user: user, friendship: @friendship })
+      create_notification(user, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
 
       Pusher.trigger('private-' + user.id.to_s, 'receive-accepted-friendship', {
         client:     client,

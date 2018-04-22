@@ -108,7 +108,7 @@ class Api::PostsController < ApplicationController
           if share.save
             # Create push notification for each recipient
             user = User.find(recipient_id)
-            create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post, message: @message })
+            create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post' })
             Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
               client:  @client,
               user:    user,
@@ -131,7 +131,7 @@ class Api::PostsController < ApplicationController
           if share.save
             # Create push notification for each recipient
             # user = User.find(recipient_id)
-            # create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post', client: @client, user: user, post: @post, message: @message })
+            # create_notification(user, @client.username + ' shared a post with you!', { type: 'receive-post' })
             # Pusher.trigger('private-' + user.id.to_s, 'receive-post', {
             #   client:  @client,
             #   user:    user,

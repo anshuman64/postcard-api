@@ -12,7 +12,7 @@ class Api::LikesController < ApplicationController
       user = @like.post.author
 
       unless user.id == client.id
-        create_notification(user, client.username + ' liked your post.', { type: 'receive-like', client: client, user: user, like: @like })
+        create_notification(user, client.username + ' liked your post.', { type: 'receive-like' })
       end
 
       render 'api/likes/show'
