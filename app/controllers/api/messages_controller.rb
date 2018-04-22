@@ -61,9 +61,9 @@ class Api::MessagesController < ApplicationController
       end
 
       user_id = params[:recipient_id]
-      create_notification(@client, user_id, message_preview, { type: 'receive-message', client: @client })
+      create_notification(@client, user_id, { en: @client[:username] }, message_preview, { type: 'receive-message', client_id: @client.id })
       Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
-        client:  @client,
+        client_id:  @client.id,
         message: @message
       })
 
@@ -94,22 +94,22 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
 
     if @message.save
-      # user = User.find(params[:recipient_id])
-      #
-      # if @message.body
-      #   message_preview = @message.body
-      # elsif @message.post_id
-      #   message_preview = 'Clicked on your post.'
-      # else
-      #   message_preview = 'Sent you an image.'
-      # end
-      #
-      # create_notification(@client, user, message_preview, { type: 'receive-message', client: @client })
-      # Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
-      #   client:  @client,
-      #   user:    user,
-      #   message: @message
-      # })
+      if @message.body
+        message_preview = @message.body
+      elsif @message.post_id
+        message_preview = 'Clicked on your post.'
+      else
+        message_preview = 'Sent an image.'
+      end
+
+      group.groupling_users.where('user_id != ?', @client.id).each do |user|
+        title = group[:name].nil? ? @client[:username] : group[:name]
+        create_notification(@client, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
+        Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
+          group_id:  group.id,
+          message: @message
+        })
+      end
 
       render 'api/messages/show'
     else
