@@ -34,9 +34,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_notification(client, recipient_id, message, data)
-    title = data[:type] == 'receive-message' ? { en: client[:username] } : nil
-
+  def create_notification(client, recipient_id, title, message, data)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
       contents: { en: message },
