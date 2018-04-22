@@ -61,7 +61,7 @@ class Api::MessagesController < ApplicationController
       end
 
       user_id = params[:recipient_id]
-      create_notification(user_id, message_preview, { type: 'receive-message', client: @client })
+      create_notification(@client, user_id, message_preview, { type: 'receive-message', client: @client })
       Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
         client:  @client,
         message: @message
@@ -104,7 +104,7 @@ class Api::MessagesController < ApplicationController
       #   message_preview = 'Sent you an image.'
       # end
       #
-      # create_notification(user, message_preview, { type: 'receive-message', client: @client })
+      # create_notification(@client, user, message_preview, { type: 'receive-message', client: @client })
       # Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
       #   client:  @client,
       #   user:    user,

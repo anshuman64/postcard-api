@@ -34,8 +34,8 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_notification(recipient_id, message, data)
-    title = data[:type] == 'receive-message' ? { en: data[:client][:username] } : nil
+  def create_notification(client, recipient_id, message, data)
+    title = data[:type] == 'receive-message' ? { en: client[:username] } : nil
 
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
@@ -47,7 +47,7 @@ class ApplicationController < ActionController::API
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
-      collapse_id: data[:client][:id]
+      collapse_id: client[:id]
     }
 
     # begin
