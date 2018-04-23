@@ -13,7 +13,8 @@ class Post < ApplicationRecord
   has_many(:flags, class_name: :Flag, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
 
   has_many(:shares, class_name: :Share, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
-  has_many(:share_recipients, through: :shares, source: :recipient)
+  has_many(:user_recipients, through: :shares, source: :recipient)
+  has_many(:group_recipients, through: :shares, source: :group)
 
   has_many(:messages, class_name: :Message, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
 
@@ -74,17 +75,15 @@ class Post < ApplicationRecord
   end
 
   def self.query_received_posts(limit, start_at, client)
-    received_posts = client.received_posts || client.received_posts_from_groups.where('author_id != ?', client.id)
-
-    most_recent_post = received_posts.last
+    received_posts_array = client.received_posts.ids + client.received_posts_from_groups.where('author_id != ?', client.id).ids
 
     limit    ||= DEFAULT_LIMIT
-    start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+    start_at ||= (received_posts_array.empty? ? DEFAULT_START_AT : received_posts_array.max + 1)
 
     flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
     blocked_user_post_ids = client.blockees.ids.count > 0 ? client.blockees.ids : 0
 
-    received_posts.where('post_id < ? and post_id NOT IN (?) and author_id NOT IN (?)', start_at, flagged_post_ids, blocked_user_post_ids).last(limit).reverse
+    Post.where('id < ? and id IN (?) and id NOT IN (?) and author_id NOT IN (?)', start_at, received_posts_array, flagged_post_ids, blocked_user_post_ids).last(limit).reverse
   end
 
   private
