@@ -47,7 +47,7 @@ class Api::GroupsController < ApplicationController
       end
 
       # Send pusher update to all members
-      pusher_group = @group.attributes
+      pusher_group = @group.as_json
       @group.groupling_users.where('user_id != ?', @client.id).each do |user|
         pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
         create_notification(@client.id, user.id, nil, @client.username + ' added you to a group.', { type: 'receive-group' })
@@ -81,7 +81,7 @@ class Api::GroupsController < ApplicationController
     end
 
     # Send pusher update to all members
-    pusher_group = @group.attributes
+    pusher_group = @group.as_json
     @group.groupling_users.where('user_id != ?', @client.id).each do |user|
       pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
       if params[:user_ids].include?(user.id)
@@ -126,7 +126,7 @@ class Api::GroupsController < ApplicationController
         else
           next_owner = @group.groupling_users[0]
           if Group.update(@group.id, :owner_id => next_owner.id)
-            pusher_group = @group.attributes
+            pusher_group = @group.as_json
             pusher_group[:users] = @group.groupling_users.where('user_id != ?', next_owner.id).as_json
             Pusher.trigger('private-' + next_owner.id.to_s, 'edit-group', { group: pusher_group })
           else
@@ -139,7 +139,7 @@ class Api::GroupsController < ApplicationController
       Pusher.trigger('private-' + user_id.to_s, 'remove-group', { group_id: @group.id })
 
       # Send pusher update to all other members
-      pusher_group = @group.attributes
+      pusher_group = @group.as_json
       @group.groupling_users.where('user_id != ? and user_id != ?', @client.id, user_id).each do |user|
         pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
         Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })
@@ -162,7 +162,7 @@ class Api::GroupsController < ApplicationController
 
     if @group.update(group_params)
       # Send pusher update to all other members
-      pusher_group = @group.attributes
+      pusher_group = @group.as_json
       @group.groupling_users.where('user_id != ?', @client.id).each do |user|
         pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
         Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })

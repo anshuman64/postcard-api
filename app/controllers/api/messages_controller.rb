@@ -62,9 +62,21 @@ class Api::MessagesController < ApplicationController
 
       user_id = params[:recipient_id]
       create_notification(@client.id, user_id, { en: @client[:username] }, message_preview, { type: 'receive-message', client_id: @client.id })
+
+      pusher_message = @message.as_json
+      message_post = @message.post
+      if message_post
+        pusher_message[:post] = message_post.as_json
+        pusher_message[:post][:num_likes] = message_post.likes.count
+        pusher_message[:post][:is_liked_by_client] = message_post.likes.where('user_id = ?', @client.id).present?
+
+        pusher_message[:post][:num_flags] = message_post.flags.count
+        pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', @client.id).present?
+      end
+
       Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
         client_id:  @client.id,
-        message: @message
+        message: pusher_message
       })
 
       render 'api/messages/show'
@@ -102,12 +114,22 @@ class Api::MessagesController < ApplicationController
         message_preview = 'Sent an image.'
       end
 
+      pusher_message = @message.as_json
+      message_post = @message.post
+      if message_post
+        pusher_message[:post] = message_post.as_json
+        pusher_message[:post][:num_likes] = 0
+        pusher_message[:post][:is_liked_by_client] = false
+        pusher_message[:post][:num_flags] = 0
+        pusher_message[:post][:is_flagged_by_client] = false
+      end
+
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
         title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
         create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
         Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
           group_id:  group.id,
-          message: @message
+          message: pusher_message
         })
       end
 

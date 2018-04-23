@@ -128,13 +128,29 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      pusher_post = @post.as_json
+      pusher_post[:num_likes] = @post.likes.count
+      pusher_post[:num_flags] = @post.flags.count
+      user_recipient_ids = @post.user_recipients.ids
+      pusher_post[:user_recipient_ids] = user_recipient_ids
+      group_recipient_ids = @post.group_recipients.ids
+      pusher_post[:group_recipient_ids] = group_recipient_ids
+      pusher_post[:author] = @post.author.as_json
+
       user_ids = user_ids.uniq
       user_ids.each do |user_id|
         unless user_id == @client.id
+          user = User.find(user_id)
+          pusher_post[:is_liked_by_client] = @post.likes.where('user_id = ?', user.id).present?
+          pusher_post[:is_flagged_by_client] = @post.flags.where('user_id = ?', user.id).present?
+          pusher_post[:user_ids_with_client] = user_recipient_ids & [user.id]
+          pusher_post[:group_ids_with_client] = group_recipient_ids & user.groups.ids
+          pusher_post[:author][:is_user_followed_by_client] = @post.author.followers.where('follower_id = ?', user.id).present?
+
           create_notification(@client.id, user_id, nil, @client.username + ' shared a post!', { type: 'receive-post' })
           Pusher.trigger('private-' + user_id.to_s, 'receive-post', {
             user_id: user_id,
-            post:    @post
+            post:    pusher_post
           })
         end
       end
