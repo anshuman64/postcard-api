@@ -35,29 +35,36 @@ Rails.application.routes.draw do
     delete 'follows/:followee_id',     to: 'follows#destroy_follow'
 
     # 'Blocks' routes
-    get    'blocks',                        to: 'blocks#get_blocked_users'
-    post   'blocks',                        to: 'blocks#create_block'
-    delete 'blocks/:blockee_id',            to: 'blocks#destroy_block'
+    get    'blocks',                   to: 'blocks#get_blocked_users'
+    post   'blocks',                   to: 'blocks#create_block'
+    delete 'blocks/:blockee_id',       to: 'blocks#destroy_block'
 
     # 'Friendships' routes
     get    'friendships/accepted',     to: 'friendships#get_friends'
     get    'friendships/sent',         to: 'friendships#get_sent_requests'
     get    'friendships/received',     to: 'friendships#get_received_requests'
-    get    'friendships/contacts',     to: 'friendships#get_friends_from_contacts'
+    post   'friendships/contacts',     to: 'friendships#get_friends_from_contacts'
     post   'friendships',              to: 'friendships#create_friend_request'
     put    'friendships/accept',       to: 'friendships#accept_friend_request'
     delete 'friendships/:user_id',     to: 'friendships#destroy_friendship'
 
     # 'Messages' routes
-    # TODO: The messages/group route is currently stale
-    # It will be used when we add group messaging
     get    'messages/direct/:user_id', to: 'messages#get_direct_messages'
     get    'messages/group/:group_id', to: 'messages#get_group_messages'
-    post   'messages',                 to: 'messages#create_message'
+    post   'messages/direct',          to: 'messages#create_direct_message'
+    post   'messages/group',           to: 'messages#create_group_message'
 
     # 'Circles' routes
     get    'circles',                  to: 'circles#get_circles'
     post   'circles',                  to: 'circles#create_circle'
     delete 'circles/:id',              to: 'circles#destroy_circle'
+
+    # 'Groups' routes
+    get    'groups',                  to: 'groups#get_groups'
+    post   'groups',                  to: 'groups#create_group'
+    post   'groups/add',              to: 'groups#create_grouplings'
+    put    'groups',                  to: 'groups#edit_group'
+    delete 'groups/:id',              to: 'groups#destroy_group'
+    delete 'groups/:id/:user_id',     to: 'groups#destroy_groupling'
   end
 end

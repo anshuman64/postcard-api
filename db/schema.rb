@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180419140003) do
+ActiveRecord::Schema.define(version: 20180420182154) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -31,10 +31,12 @@ ActiveRecord::Schema.define(version: 20180419140003) do
 
   create_table "circlings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "circle_id", null: false
-    t.integer "user_id", null: false
+    t.integer "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id"
     t.index ["circle_id"], name: "index_circlings_on_circle_id"
+    t.index ["group_id"], name: "index_circlings_on_group_id"
     t.index ["user_id"], name: "index_circlings_on_user_id"
   end
 
@@ -66,6 +68,23 @@ ActiveRecord::Schema.define(version: 20180419140003) do
     t.index ["requester_id"], name: "index_friendships_on_requester_id"
   end
 
+  create_table "grouplings", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "group_id", null: false
+    t.integer "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["group_id"], name: "index_grouplings_on_group_id"
+    t.index ["user_id"], name: "index_grouplings_on_user_id"
+  end
+
+  create_table "groups", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
+    t.integer "owner_id", null: false
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["owner_id"], name: "index_groups_on_owner_id"
+  end
+
   create_table "likes", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "user_id", null: false
     t.integer "post_id", null: false
@@ -77,14 +96,16 @@ ActiveRecord::Schema.define(version: 20180419140003) do
 
   create_table "messages", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "author_id", null: false
-    t.integer "friendship_id", null: false
+    t.integer "friendship_id"
     t.integer "post_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "body"
     t.string "image_url"
+    t.integer "group_id"
     t.index ["author_id"], name: "index_messages_on_author_id"
     t.index ["friendship_id"], name: "index_messages_on_friendship_id"
+    t.index ["group_id"], name: "index_messages_on_group_id"
     t.index ["post_id"], name: "index_messages_on_post_id"
   end
 
@@ -99,10 +120,12 @@ ActiveRecord::Schema.define(version: 20180419140003) do
   end
 
   create_table "shares", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
-    t.integer "recipient_id", null: false
+    t.integer "recipient_id"
     t.integer "post_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "group_id"
+    t.index ["group_id"], name: "index_shares_on_group_id"
     t.index ["post_id"], name: "index_shares_on_post_id"
     t.index ["recipient_id"], name: "index_shares_on_recipient_id"
   end

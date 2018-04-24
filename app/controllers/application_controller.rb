@@ -34,9 +34,7 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_notification(recipient, message, data)
-    title = data[:type] == 'receive-message' ? { en: data[:client][:username] } : nil
-
+  def create_notification(client_id, recipient_id, title, message, data)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
       contents: { en: message },
@@ -44,20 +42,20 @@ class ApplicationController < ActionController::API
       ios_badgeCount: 1,
       android_led_color: '007aff',
       android_accent_color: '007aff',
-      filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient.id.to_s}],
+      filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
-      collapse_id: data[:client][:id]
+      collapse_id: client_id
     }
 
-    # begin
-    #   response = OneSignal::Notification.create(params: params, opts: { auth_key: ENV["ONE_SIGNAL_AUTH_KEY"] })
-    #   notification_id = JSON.parse(response.body)["id"]
-    # rescue OneSignal::OneSignalError => e
-    #   puts "--- OneSignalError  :"
-    #   puts "-- message : #{e.message}"
-    #   puts "-- status : #{e.http_status}"
-    #   puts "-- body : #{e.http_body}"
-    # end
+    begin
+      response = OneSignal::Notification.create(params: params, opts: { auth_key: ENV["ONE_SIGNAL_AUTH_KEY"] })
+      notification_id = JSON.parse(response.body)["id"]
+    rescue OneSignal::OneSignalError => e
+      puts "--- OneSignalError  :"
+      puts "-- message : #{e.message}"
+      puts "-- status : #{e.http_status}"
+      puts "-- body : #{e.http_body}"
+    end
   end
 end

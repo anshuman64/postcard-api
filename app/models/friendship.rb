@@ -28,14 +28,10 @@ class Friendship < ApplicationRecord
     user.friends_as_requestee.where('status = ?', 'REQUESTED')
   end
 
-  def self.query_friends_from_contacts(user, contacts)
-    friends = user.friends_as_requester | user.friends_as_requestee
+  def self.query_friends_from_contacts(client, contacts)
+    friend_ids = client.friends_as_requester.ids + client.friends_as_requestee.ids + [client.id]
 
-    if friends.empty?
-      friends = -1
-    end
-
-    User.where('phone_number IN (?) and id NOT IN (?)', contacts, friends)
+    User.where('phone_number IN (?) and id NOT IN (?)', contacts, friend_ids)
   end
 
   private
@@ -48,7 +44,7 @@ class Friendship < ApplicationRecord
       if last_message
         last_message.created_at
       else
-        DateTime.new(0,1,1)
+        friendship.created_at
       end
     end
 
