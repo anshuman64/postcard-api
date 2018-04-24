@@ -55,7 +55,7 @@ class Api::MessagesController < ApplicationController
       if @message.body
         message_preview = @message.body
       elsif @message.post_id
-        message_preview = 'Clicked on your post.'
+        message_preview = 'Clicked on your post!'
       else
         message_preview = 'Sent you an image.'
       end
@@ -109,7 +109,7 @@ class Api::MessagesController < ApplicationController
       if @message.body
         message_preview = @message.body
       elsif @message.post_id
-        message_preview = 'Clicked on your post.'
+        message_preview = 'Clicked on your post!'
       else
         message_preview = 'Sent an image.'
       end
