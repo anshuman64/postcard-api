@@ -15,6 +15,6 @@ json.group_recipient_ids group_recipient_ids
 json.group_ids_with_client group_recipient_ids & @client.groups.ids
 
 json.author do
-  json.(@post.author, :id, :username, :avatar_url)
+  json.(@post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_url, :is_banned, :created_at, :updated_at)
   json.is_user_followed_by_client @post.author.followers.where('follower_id = ?', @client.id).present?
 end
