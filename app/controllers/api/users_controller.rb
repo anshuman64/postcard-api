@@ -1,6 +1,6 @@
 class Api::UsersController < ApplicationController
   def find_user
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @user, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
@@ -16,26 +16,26 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
+    @user = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
 
-    if @client.save
+    if @user.save
       render 'api/users/show'
     else
-      render json: @client.errors.full_messages, status: 422
+      render json: @user.errors.full_messages, status: 422
     end
   end
 
   def edit_user
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+    @user, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
     end
 
-    if @client.update(user_params)
+    if @user.update(user_params)
       render 'api/users/show'
     else
-      render json: @client.errors.full_messages, status: 422
+      render json: @user.errors.full_messages, status: 422
     end
   end
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180420182154) do
+ActiveRecord::Schema.define(version: 20180426031045) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -133,7 +133,7 @@ ActiveRecord::Schema.define(version: 20180420182154) do
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "firebase_uid", null: false
+    t.string "firebase_uid"
     t.string "avatar_url"
     t.string "username"
     t.string "phone_number"

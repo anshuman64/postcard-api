@@ -15,23 +15,23 @@ class Friendship < ApplicationRecord
   end
 
   def self.query_friends(user)
-    friends = user.friends_as_requester.where('status = ?', 'ACCEPTED') | user.friends_as_requestee.where('status = ?', 'ACCEPTED')
+    friends = user.friends_as_requester.where('status = ?', 'ACCEPTED and firebase_uid IS NOT NULL') | user.friends_as_requestee.where('status = ? and firebase_uid IS NOT NULL', 'ACCEPTED')
 
     sort_friends_by_recent_messages(user.id, friends)
   end
 
   def self.query_sent_requests(user)
-    user.friends_as_requester.where('status = ?', 'REQUESTED')
+    user.friends_as_requester.where('status = ? and firebase_uid IS NOT NULL', 'REQUESTED')
   end
 
   def self.query_received_requests(user)
-    user.friends_as_requestee.where('status = ?', 'REQUESTED')
+    user.friends_as_requestee.where('status = ? and firebase_uid IS NOT NULL', 'REQUESTED')
   end
 
   def self.query_friends_from_contacts(client, contacts)
     friend_ids = client.friends_as_requester.ids + client.friends_as_requestee.ids + [client.id]
 
-    User.where('phone_number IN (?) and id NOT IN (?)', contacts, friend_ids)
+    User.where('phone_number IN (?) and id NOT IN (?) and firebase_uid IS NOT NULL', contacts, friend_ids)
   end
 
   private
