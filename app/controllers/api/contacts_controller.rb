@@ -1,4 +1,16 @@
 class Api::ContactsController < ApplicationController
+  def get_contacts_with_accounts
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @users = User.where('phone_number IN (?) and firebase_uid IS NULL', params[:phone_numbers])
+
+    render 'api/users/index'
+  end
+
   def get_other_contacts
     client, error = decode_token_and_find_user(request.headers['Authorization'])
 
@@ -6,20 +18,7 @@ class Api::ContactsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    phone_numbers_with_accounts = []
-    phone_numbers_without_accounts = []
-
-    params[:phone_numbers].each do |phone_number|
-      user = User.find_by_phone_number(phone_number)
-
-      if !user
-        phone_numbers_without_accounts += [phone_number]
-      elsif !user[:firebase_uid]
-        phone_numbers_with_accounts += [phone_number]
-      end
-    end
-
-    render json: { phone_numbers_with_accounts: phone_numbers_with_accounts, phone_numbers_without_accounts: phone_numbers_without_accounts }
+    render json: params[:phone_numbers] - User.where('phone_number IN (?)', params[:phone_numbers]).pluck(:phone_number)
   end
 
   def invite_contact
