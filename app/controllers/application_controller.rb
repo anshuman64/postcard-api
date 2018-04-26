@@ -58,4 +58,37 @@ class ApplicationController < ActionController::API
       puts "-- body : #{e.http_body}"
     end
   end
+
+  def find_or_create_contact_user(client_id, phone_number)
+    def create_friendship(client_id, user)
+      friendship = Friendship.new({ requester_id: client_id, requestee_id: user.id })
+
+      if friendship.save
+        return user, nil
+      else
+        return nil, friendship.errors.full_messages
+      end
+    end
+
+    user = User.find_by_phone_number(phone_number)
+
+    unless user
+      user = User.new({ phone_number: phone_number })
+
+      if user.save
+        create_friendship(client_id, user)
+      else
+        return nil, user.errors.full_messages
+      end
+    else
+      friendship = Friendship.find_by_requester_id_and_requestee_id(client_id, user.id)
+
+      unless friendship
+        create_friendship(client_id, user)
+      else
+        return user, nil
+      end
+    end
+  end
+
 end

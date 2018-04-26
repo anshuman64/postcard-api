@@ -25,44 +25,22 @@ class Api::ContactsController < ApplicationController
   def invite_contact
     client, error = decode_token_and_find_user(request.headers['Authorization'])
 
-    def send_sms
-      # TODO: add Twilio code
-      render 'api/users/show' and return
-    end
-
-    def create_friendship(client, user)
-      friendship = Friendship.new({ requester_id: client.id, requestee_id: user.id })
-
-      if friendship.save
-        send_sms
-      else
-        render json: friendship.errors.full_messages, status: 422 and return
-      end
-    end
-
     if error
       render json: [error], status: 401 and return
     end
 
-    @user = User.find_by_phone_number(params[:phone_number])
-
-    unless @user
-      @user = User.new({ phone_number: params[:phone_number], email: params[:email] })
-
-      if @user.save
-        create_friendship(client, @user)
-      else
-        render json: @user.errors.full_messages, status: 422 and return
-      end
-    else
-      friendship = Friendship.find_by_requester_id_and_requestee_id(client.id, @user.id)
-
-      unless friendship
-        create_friendship(client, @user)
-      else
-        send_sms
-      end
+    unless params[:phone_number]
+      render json: ['No phone number given'], status: 404 and return
     end
+
+    user, error = find_or_create_contact_user(client.id, params[:phone_number])
+
+    if error
+      render json: [error], status: 422 and return
+    end
+
+    # TODO: add Twilio code
+    render json: [] and return
   end
 
 end

@@ -128,6 +128,29 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      if params[:contact_phone_numbers]
+        params[:contact_phone_numbers].each do |phone_number|
+          user, error = find_or_create_contact_user(@client.id, phone_number)
+
+          if user
+            # Create share for each recipient
+            share = Share.new({ post_id: @post.id, recipient_id: user.id })
+
+            if share.save
+              # TODO: add Twilio code
+
+              next
+            else
+              render json: ['Sharing posts failed.'], status: 422 and return
+            end
+          else
+            render json: [error], status: 422 and return
+          end
+
+        end
+      end
+
+      # Create pusher_post
       pusher_post = @post.as_json
       pusher_post[:num_likes] = @post.likes.count
       pusher_post[:num_flags] = @post.flags.count
