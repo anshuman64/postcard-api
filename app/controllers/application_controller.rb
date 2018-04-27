@@ -59,6 +59,10 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def send_Twilio_sms()
+    # TODO: add Twilio code here
+  end
+
   def find_or_create_contact_user(client_id, phone_number)
     def create_friendship(client_id, user)
       friendship = Friendship.new({ requester_id: client_id, requestee_id: user.id })
@@ -71,24 +75,90 @@ class ApplicationController < ActionController::API
     end
 
     user = User.find_by_phone_number(phone_number)
-
-    unless user
+    if user
+      friendship = Friendship.find_by_requester_id_and_requestee_id(client_id, user.id)
+      if friendship
+        return user, nil
+      else
+        create_friendship(client_id, user)
+      end
+    else
       user = User.new({ phone_number: phone_number })
-
       if user.save
         create_friendship(client_id, user)
       else
         return nil, user.errors.full_messages
-      end
-    else
-      friendship = Friendship.find_by_requester_id_and_requestee_id(client_id, user.id)
+    end
+  end
 
-      unless friendship
-        create_friendship(client_id, user)
-      else
-        return user, nil
+  def create_circling(circle_id, user_id, group_id)
+    circling = Circling.new({ circle_id: circle_id, user_id: user_id, group_id: group_id })
+    unless circling.save
+      render json: ['Creating circle failed.'], status: 422 and return
+    end
+  end
+
+  def create_groupling(group_id, user_id)
+    groupling = Groupling.new({ group_id: group_id, user_id: user_id })
+
+    unless groupling.save
+      render json: ['Creating group failed.'], status: 422 and return
+    end
+
+    return groupling
+  end
+
+  def send_pusher_group_to_grouplings(group, exempt_user_ids, pusher_type, client)
+    pusher_group = group.as_json
+
+    group.groupling_users.where('user_id NOT IN (?) and firebase_uid IS NOT NULL', exempt_user_ids).each do |user|
+      pusher_group[:users] = group.groupling_users.where('user_id != ?', user.id).as_json
+      Pusher.trigger('private-' + user.id.to_s, pusher_type, { group: pusher_group })
+
+      if pusher_type == 'receive-group'
+        create_notification(client.id, user.id, nil, client.username + ' added you to a group.', { type: pusher_type })
       end
     end
+
+    return pusher_group
+  end
+
+  def get_pusher_message(message, client_id)
+    pusher_message = message.as_json
+    message_post = message.post
+
+    if message_post
+      pusher_message[:post] = message_post.as_json
+      pusher_message[:post][:num_likes] = message_post.likes.count
+      pusher_message[:post][:is_liked_by_client] = message_post.likes.where('user_id = ?', client_id).present?
+
+      pusher_message[:post][:num_flags] = message_post.flags.count
+      pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', client_id).present?
+    end
+
+    return pusher_message
+  end
+
+  def get_message_notification_preview(message)
+    if message.body
+      message_preview = message.body
+    elsif message.post_id
+      message_preview = 'Clicked on your post!'
+    else
+      message_preview = 'Sent you an image.'
+    end
+
+    return message_preview
+  end
+
+  def create_share(post_id, recipient_id, group_id)
+    share = Share.new({ post_id: post_id, recipient_id: recipient_id, group_id: group_id })
+
+    unless share.save
+      render json: ['Sharing posts failed.'], status: 422 and return
+    end
+
+    return share
   end
 
 end

@@ -88,10 +88,9 @@ class Api::FriendshipsController < ApplicationController
     end
 
     @friendship = Friendship.new({ requester_id: client.id, requestee_id: user_id })
-
     if @friendship.save
       # Send event to client with user info if user added by username
-      if user
+      if params[:username]
         Pusher.trigger('private-' + client.id.to_s, 'create-friendship', { user: user })
       end
 
@@ -112,16 +111,15 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    user_id = params[:user_id]
-    @friendship = Friendship.find_by_requester_id_and_requestee_id(user_id, client.id)
+    @friendship = Friendship.find_by_requester_id_and_requestee_id(params[:user_id], client.id)
 
     unless @friendship
       render json: ['Friendship not found'], status: 404 and return
     end
 
     if @friendship.update({ status: 'ACCEPTED' })
-      create_notification(client.id, user_id, nil, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
-      Pusher.trigger('private-' + user_id.to_s, 'receive-accepted-friendship', { client: client })
+      create_notification(client.id, params[:user_id], nil, client.username + ' accepted your friend request.', { type: 'receive-accepted-friendship' })
+      Pusher.trigger('private-' + params[:user_id].to_s, 'receive-accepted-friendship', { client: client })
 
       render 'api/friendships/show'
     else
@@ -136,8 +134,7 @@ class Api::FriendshipsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    user_id = params[:user_id]
-    @friendship = Friendship.find_friendship(client.id, user_id)
+    @friendship = Friendship.find_friendship(client.id, params[:user_id])
 
     # Friendship may not exist if blocking the user
     unless @friendship
@@ -145,7 +142,7 @@ class Api::FriendshipsController < ApplicationController
     end
 
     if @friendship.destroy
-      Pusher.trigger('private-' + user_id.to_s, 'destroy-friendship', { friendship: @friendship })
+      Pusher.trigger('private-' + params[:user_id].to_s, 'destroy-friendship', { friendship: @friendship })
 
       render 'api/friendships/show'
     else

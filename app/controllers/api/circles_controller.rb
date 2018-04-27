@@ -23,28 +23,15 @@ class Api::CirclesController < ApplicationController
     end
 
     @circle = Circle.new({ creator_id: @client.id, name: params[:name] })
-
     if @circle.save
       params[:user_ids].each do |user_id|
-        # Create circling for each user
-        circling = Circling.new({ circle_id: @circle.id, user_id: user_id })
-
-        if circling.save
-          next
-        else
-          render json: ['Creating circle failed.'], status: 422 and return
-        end
+        create_circling(@circle.id, user_id, nil)
+        next
       end
 
       params[:group_ids].each do |group_id|
-        # Create circling for each user
-        circling = Circling.new({ circle_id: @circle.id, group_id: group_id })
-
-        if circling.save
-          next
-        else
-          render json: ['Creating circle failed.'], status: 422 and return
-        end
+        create_circling(@circle.id, nil, group_id)
+        next
       end
 
       render 'api/circles/show'

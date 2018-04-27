@@ -7,11 +7,9 @@ class Api::ContactsController < ApplicationController
     end
 
     @users = User.where('phone_number IN (?) and firebase_uid IS NULL', params[:phone_numbers])
-
     @users.sort_by do |user|
       user.created_at
     end
-
     @users.reverse
 
     render 'api/users/index'
@@ -38,14 +36,14 @@ class Api::ContactsController < ApplicationController
       render json: ['No phone number given'], status: 404 and return
     end
 
-    user, error = find_or_create_contact_user(client.id, params[:phone_number])
+    contact_user, contact_error = find_or_create_contact_user(client.id, params[:phone_number])
 
-    if error
-      render json: [error], status: 422 and return
+    if contact_error
+      render json: [contact_error], status: 422 and return
     end
 
     # TODO: add Twilio code
-    render json: [] and return
+    render json: {} and return
   end
 
 end

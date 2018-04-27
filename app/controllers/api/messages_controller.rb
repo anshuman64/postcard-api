@@ -52,32 +52,9 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], friendship_id: friendship.id })
 
     if @message.save
-      if @message.body
-        message_preview = @message.body
-      elsif @message.post_id
-        message_preview = 'Clicked on your post!'
-      else
-        message_preview = 'Sent you an image.'
-      end
-
-      user_id = params[:recipient_id]
-      create_notification(@client.id, user_id, { en: @client[:username] }, message_preview, { type: 'receive-message', client_id: @client.id })
-
-      pusher_message = @message.as_json
-      message_post = @message.post
-      if message_post
-        pusher_message[:post] = message_post.as_json
-        pusher_message[:post][:num_likes] = message_post.likes.count
-        pusher_message[:post][:is_liked_by_client] = message_post.likes.where('user_id = ?', @client.id).present?
-
-        pusher_message[:post][:num_flags] = message_post.flags.count
-        pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', @client.id).present?
-      end
-
-      Pusher.trigger('private-' + user_id.to_s, 'receive-message', {
-        client_id:  @client.id,
-        message: pusher_message
-      })
+      pusher_message = get_pusher_message(@message, @client.id)
+      Pusher.trigger('private-' + params[:recipient_id].to_s, 'receive-message', { client_id:  @client.id, message: pusher_message })
+      create_notification(@client.id, params[:recipient_id], { en: @client[:username] }, get_message_notification_preview(@message), { type: 'receive-message', client_id: @client.id })
 
       render 'api/messages/show'
     else
@@ -106,34 +83,17 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
 
     if @message.save
-      if @message.body
-        message_preview = @message.body
-      elsif @message.post_id
-        message_preview = 'Clicked on your post!'
-      else
-        message_preview = 'Sent an image.'
-      end
-
-      pusher_message = @message.as_json
-      message_post = @message.post
-      if message_post
-        pusher_message[:post] = message_post.as_json
-        pusher_message[:post][:num_likes] = 0
-        pusher_message[:post][:is_liked_by_client] = false
-        pusher_message[:post][:num_flags] = 0
-        pusher_message[:post][:is_flagged_by_client] = false
-      end
+      pusher_message = get_pusher_message(@message, @client.id)
+      message_preview = get_message_notification_preview(@message)
 
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
         if user[:firebase_uid]
           title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
           create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
-          Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
-            group_id:  group.id,
-            message: pusher_message
-          })
-        else
-          # TODO: add Twilio code
+
+          pusher_message[:is_liked_by_client] = message_post.likes.where('user_id = ?', user.id).present?
+          pusher_message[:is_flagged_by_client] = message_post.flags.where('user_id = ?', user.id).present?
+          Pusher.trigger('private-' + user.id.to_s, 'receive-message', { group_id: group.id, message:  pusher_message })
         end
       end
 
