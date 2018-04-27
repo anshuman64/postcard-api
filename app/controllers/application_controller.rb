@@ -62,11 +62,11 @@ class ApplicationController < ActionController::API
   end
 
   def send_twilio_sms(phone_number, message)
-    # message = @@twilio_client.messages.create(
-    #   body: message,
-    #   to:   phone_number,
-    #   from: "+14088831259"
-    # )
+    message = @@twilio_client.messages.create(
+      body: message,
+      to:   phone_number,
+      from: "+14088831259"
+    )
   end
 
   def find_or_create_contact_user(client_id, phone_number)
