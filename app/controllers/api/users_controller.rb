@@ -16,12 +16,23 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
+    # Checks if phone number already has an account created by another user's SMS
+    @client = User.find_by_phone_number(params[:phone_number])
 
-    if @client.save
-      render 'api/users/show'
+    if @client
+      if @client.update({ firebase_uid: firebase_uid })
+        render 'api/users/show' and return
+      else
+        render json: @client.errors.full_messages, status: 422 and return
+      end
     else
-      render json: @client.errors.full_messages, status: 422
+      @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
+
+      if @client.save
+        render 'api/users/show' and return
+      else
+        render json: @client.errors.full_messages, status: 422 and return
+      end
     end
   end
 

@@ -125,12 +125,16 @@ class Api::MessagesController < ApplicationController
       end
 
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
-        title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
-        create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
-        Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
-          group_id:  group.id,
-          message: pusher_message
-        })
+        if user[:firebase_uid]
+          title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
+          create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
+          Pusher.trigger('private-' + user.id.to_s, 'receive-message', {
+            group_id:  group.id,
+            message: pusher_message
+          })
+        else
+          # TODO: add Twilio code
+        end
       end
 
       render 'api/messages/show'

@@ -18,7 +18,7 @@ class Api::GroupsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    if params[:user_ids].size < 2
+    if params[:user_ids].size + params[:contact_phone_numbers].size < 2
       render json: ['Minimum 2 recipients required'], status: 403 and return
     end
 
@@ -39,16 +39,34 @@ class Api::GroupsController < ApplicationController
         groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
 
         if groupling.save
-
           next
         else
           render json: ['Creating group failed.'], status: 422 and return
         end
       end
 
+      params[:contact_phone_numbers].each do |phone_number|
+        user, error = find_or_create_contact_user(@client.id, phone_number)
+
+        if user
+          # Create share for each recipient
+          groupling = Groupling.new({ group_id: @group.id, user_id: user.id })
+
+          if groupling.save
+            # TODO: add Twilio code
+
+            next
+          else
+            render json: ['Sharing posts failed.'], status: 422 and return
+          end
+        else
+          render json: [error], status: 422 and return
+        end
+      end
+
       # Send pusher update to all members
       pusher_group = @group.as_json
-      @group.groupling_users.where('user_id != ?', @client.id).each do |user|
+      @group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |user|
         pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
         create_notification(@client.id, user.id, nil, @client.username + ' added you to a group.', { type: 'receive-group' })
         Pusher.trigger('private-' + user.id.to_s, 'receive-group', { group: pusher_group })
@@ -80,9 +98,28 @@ class Api::GroupsController < ApplicationController
       end
     end
 
+    params[:contact_phone_numbers].each do |phone_number|
+      user, error = find_or_create_contact_user(@client.id, phone_number)
+
+      if user
+        # Create share for each recipient
+        groupling = Groupling.new({ group_id: @group.id, user_id: user.id })
+
+        if groupling.save
+          # TODO: add Twilio code
+
+          next
+        else
+          render json: ['Sharing posts failed.'], status: 422 and return
+        end
+      else
+        render json: [error], status: 422 and return
+      end
+    end
+
     # Send pusher update to all members
     pusher_group = @group.as_json
-    @group.groupling_users.where('user_id != ?', @client.id).each do |user|
+    @group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |user|
       pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
       if params[:user_ids].include?(user.id)
         create_notification(@client.id, user.id, nil, @client.username + ' added you to a group.', { type: 'receive-group' })

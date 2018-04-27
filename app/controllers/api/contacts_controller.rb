@@ -8,6 +8,12 @@ class Api::ContactsController < ApplicationController
 
     @users = User.where('phone_number IN (?) and firebase_uid IS NULL', params[:phone_numbers])
 
+    @users.sort_by do |user|
+      user.created_at
+    end
+
+    @users.reverse
+
     render 'api/users/index'
   end
 
