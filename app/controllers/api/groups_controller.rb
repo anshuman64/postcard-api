@@ -39,7 +39,7 @@ class Api::GroupsController < ApplicationController
 
         if contact_user
           create_groupling(@group.id, contact_user.id)
-          # TODO: add Twilio code
+          send_twilio_sms(phone_number, @client.username + " added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
           next
         else
           render json: [contact_error], status: 422 and return

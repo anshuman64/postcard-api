@@ -124,6 +124,7 @@ class Api::PostsController < ApplicationController
 
           if contact_user
             create_share(@post.id, contact_user.id, nil)
+            send_twilio_sms(phone_number, @client.username + " sent you a post on Postcard!\n\nDownload now: http://www.insiya.io/")
             next
           else
             render json: [contact_error], status: 422 and return

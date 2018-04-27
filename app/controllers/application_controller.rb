@@ -1,9 +1,11 @@
 require 'firebase_token_verifier'
 require 'one_signal'
+require 'twilio-ruby'
 
 class ApplicationController < ActionController::API
   FIREBASE_PROJECT_ID = 'insiya-mobile'
 
+  @@twilio_client = Twilio::REST::Client.new(ENV["TWILIO_ACCOUNT_SID"], ENV["TWILIO_AUTH_TOKEN"])
   @@verifier = FirebaseTokenVerifier.new(FIREBASE_PROJECT_ID)
 
   def decode_token(firebase_jwt)
@@ -59,13 +61,17 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def send_Twilio_sms()
-    # TODO: add Twilio code here
+  def send_twilio_sms(phone_number, message)
+    # message = @@twilio_client.messages.create(
+    #   body: message,
+    #   to:   phone_number,
+    #   from: "+14088831259"
+    # )
   end
 
   def find_or_create_contact_user(client_id, phone_number)
     def create_friendship(client_id, user)
-      friendship = Friendship.new({ requester_id: client_id, requestee_id: user.id })
+      friendship = Friendship.new({ requester_id: client_id, requestee_id: user.id, status: 'ACCEPTED' })
 
       if friendship.save
         return user, nil
@@ -88,11 +94,13 @@ class ApplicationController < ActionController::API
         create_friendship(client_id, user)
       else
         return nil, user.errors.full_messages
+      end
     end
   end
 
   def create_circling(circle_id, user_id, group_id)
     circling = Circling.new({ circle_id: circle_id, user_id: user_id, group_id: group_id })
+
     unless circling.save
       render json: ['Creating circle failed.'], status: 422 and return
     end
