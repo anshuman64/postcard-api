@@ -91,8 +91,8 @@ class Api::MessagesController < ApplicationController
           title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
           create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
 
-          pusher_message[:is_liked_by_client] = message_post.likes.where('user_id = ?', user.id).present?
-          pusher_message[:is_flagged_by_client] = message_post.flags.where('user_id = ?', user.id).present?
+          pusher_message[:is_liked_by_client] = @message.post.likes.where('user_id = ?', user.id).present?
+          pusher_message[:is_flagged_by_client] = @message.post.flags.where('user_id = ?', user.id).present?
           Pusher.trigger('private-' + user.id.to_s, 'receive-message', { group_id: group.id, message:  pusher_message })
         end
       end
