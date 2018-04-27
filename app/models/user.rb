@@ -1,5 +1,4 @@
 class User < ApplicationRecord
-  validates :firebase_uid, presence: true
   validates :firebase_uid, :username, :email, :phone_number, uniqueness: { allow_blank: true, case_sensitive: false }
 
   has_many(:posts, class_name: :Post, foreign_key: :author_id, primary_key: :id, dependent: :destroy)

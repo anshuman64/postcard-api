@@ -66,5 +66,10 @@ Rails.application.routes.draw do
     put    'groups',                  to: 'groups#edit_group'
     delete 'groups/:id',              to: 'groups#destroy_group'
     delete 'groups/:id/:user_id',     to: 'groups#destroy_groupling'
+
+    # 'Contacts' routes
+    post   'contacts',                to: 'contacts#get_contacts_with_accounts' # NOTE: leave as POST to allow large amounts of data transfer
+    post   'contacts/other',          to: 'contacts#get_other_contacts'         # NOTE: leave as POST to allow large amounts of data transfer
+    post   'contacts/invite',         to: 'contacts#invite_contact'
   end
 end

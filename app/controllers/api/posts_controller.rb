@@ -97,37 +97,43 @@ class Api::PostsController < ApplicationController
     is_public = params[:is_public] || false
 
     @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
-    user_ids = []
+    pusher_user_ids = []
 
     if @post.save
       if params[:recipient_ids]
-        user_ids += params[:recipient_ids]
-        params[:recipient_ids].each do |recipient_id|
-          # Create share for each recipient
-          share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
+        pusher_user_ids += params[:recipient_ids]
 
-          if share.save
-            next
-          else
-            render json: ['Sharing posts failed.'], status: 422 and return
-          end
+        params[:recipient_ids].each do |recipient_id|
+          create_share(@post.id, recipient_id, nil)
+          next
         end
       end
 
       if params[:group_ids]
         params[:group_ids].each do |group_id|
-          # Create share for each recipient
-          share = Share.new({ post_id: @post.id, group_id: group_id })
-          user_ids += Group.find(group_id).groupling_users.pluck(:id)
-
-          if share.save
-            next
-          else
-            render json: ['Sharing posts failed.'], status: 422 and return
-          end
+          create_share(@post.id, nil, group_id)
+          pusher_user_ids += Group.find(group_id).groupling_users.pluck(:id)
+          next
         end
       end
 
+      # Don't add to pusher_user_ids because they don't need pusher events
+      if params[:contact_phone_numbers]
+        params[:contact_phone_numbers].each do |phone_number|
+          contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
+
+          if contact_user
+            create_share(@post.id, contact_user.id, nil)
+            send_twilio_sms(phone_number, @client.username + " sent you a post on Postcard!\n\nDownload now: http://www.insiya.io/")
+            next
+          else
+            render json: [contact_error], status: 422 and return
+          end
+
+        end
+      end
+
+      # Create pusher_post
       pusher_post = @post.as_json
       pusher_post[:num_likes] = @post.likes.count
       pusher_post[:num_flags] = @post.flags.count
@@ -137,8 +143,8 @@ class Api::PostsController < ApplicationController
       pusher_post[:group_recipient_ids] = group_recipient_ids
       pusher_post[:author] = @post.author.as_json
 
-      user_ids = user_ids.uniq
-      user_ids.each do |user_id|
+      pusher_user_ids = pusher_user_ids.uniq
+      pusher_user_ids.each do |user_id|
         unless user_id == @client.id
           user = User.find(user_id)
           pusher_post[:is_liked_by_client] = @post.likes.where('user_id = ?', user.id).present?

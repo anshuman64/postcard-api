@@ -33,6 +33,7 @@ gem 'jwt', '2.1.0'
 
 gem 'pusher', '~> 1.3.1'
 gem 'one_signal', '~> 1.2.0'
+gem 'twilio-ruby', '~> 5.8.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

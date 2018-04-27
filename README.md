@@ -11,9 +11,12 @@ export ONE_SIGNAL_APP_ID='Ask Anshuman for the key'
 export ONE_SIGNAL_AUTH_KEY='Ask Anshuman for the key'
 export PUSHER_KEY='Ask Anshuman for the key'
 export PUSHER_SECRET='Ask Anshuman for the key'
+export TWILIO_ACCOUNT_SID='Ask Anshuman for the key'
+export TWILIO_AUTH_TOKEN='Ask Anshuman for the key'
 ````
 
 ## Release - General
+0. Make sure OneSignal and Twilio code is uncommented
 1. Log into AWS Console: https://console.aws.amazon.com/
 2. Click 'Services' > 'Compute' > 'Elastic Beanstalk'
 3. Click 'insiya-production-server-1' or 'insiya-production-server-2'
@@ -29,5 +32,3 @@ eb deploy insiya-production-server-1
 10. On Elastic Beanstalk application page, click 'Actions' > 'Swap Environment URLs'
 11. Click 'Okay'
 12. Done! Production API calls will now be routed to the new, updated environment
-
-

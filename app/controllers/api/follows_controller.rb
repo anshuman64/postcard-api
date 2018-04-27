@@ -9,6 +9,8 @@ class Api::FollowsController < ApplicationController
     @follow = Follow.new({ followee_id: params[:followee_id], follower_id: client.id })
 
     if @follow.save
+      create_notification(@client.id, params[:followee_id], nil, 'Someone started following you.', { type: 'receive-follow' })
+
       render 'api/follows/show'
     else
       render json: @follow.errors.full_messages, status: 422
