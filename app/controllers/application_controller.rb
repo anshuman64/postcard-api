@@ -36,6 +36,7 @@ class ApplicationController < ActionController::API
     end
   end
 
+  # TODO: make this better for group messaging
   def create_notification(client_id, recipient_id, title, message, data)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
@@ -47,7 +48,7 @@ class ApplicationController < ActionController::API
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
-      collapse_id: client_id
+      android_group: client_id
     }
 
     begin
@@ -62,11 +63,15 @@ class ApplicationController < ActionController::API
   end
 
   def send_twilio_sms(phone_number, message)
-    message = @@twilio_client.messages.create(
-      body: message,
-      to:   phone_number,
-      from: "+14088831259"
-    )
+    begin
+      message = @@twilio_client.messages.create(
+        body: message,
+        to:   phone_number,
+        from: "+14088831259"
+      )
+    rescue Twilio::REST::RequestError => e
+      puts e.message
+    end
   end
 
   def find_or_create_contact_user(client_id, phone_number)
@@ -150,8 +155,6 @@ class ApplicationController < ActionController::API
   def get_message_notification_preview(message)
     if message.body
       message_preview = message.body
-    elsif message.post_id
-      message_preview = 'Clicked on your post!'
     else
       message_preview = 'Sent you an image.'
     end

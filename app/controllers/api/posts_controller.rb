@@ -119,12 +119,17 @@ class Api::PostsController < ApplicationController
 
       # Don't add to pusher_user_ids because they don't need pusher events
       if params[:contact_phone_numbers]
+        twilio_post_preview = "User \'" + @client.username + "\' sent you a post on Postcard!:"
+        twilio_post_preview += "\n\n\"" + params[:body] + "\"" if params[:body]
+        twilio_post_preview += "\n\n[Image attached]" if params[:image_url]
+        twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
+
         params[:contact_phone_numbers].each do |phone_number|
           contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
           if contact_user
             create_share(@post.id, contact_user.id, nil)
-            send_twilio_sms(phone_number, @client.username + " sent you a post on Postcard!\n\nDownload now: http://www.insiya.io/")
+            send_twilio_sms(phone_number, twilio_post_preview)
             next
           else
             render json: [contact_error], status: 422 and return

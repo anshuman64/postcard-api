@@ -54,7 +54,10 @@ class Api::MessagesController < ApplicationController
     if @message.save
       pusher_message = get_pusher_message(@message, @client.id)
       Pusher.trigger('private-' + params[:recipient_id].to_s, 'receive-message', { client_id:  @client.id, message: pusher_message })
-      create_notification(@client.id, params[:recipient_id], { en: @client[:username] }, get_message_notification_preview(@message), { type: 'receive-message', client_id: @client.id })
+      
+      unless params[:post_id]
+        create_notification(@client.id, params[:recipient_id], { en: @client[:username] }, get_message_notification_preview(@message), { type: 'receive-message', client_id: @client.id })
+      end
 
       render 'api/messages/show'
     else
@@ -89,7 +92,9 @@ class Api::MessagesController < ApplicationController
       group.groupling_users.where('user_id != ?', @client.id).each do |user|
         if user[:firebase_uid]
           title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
-          create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
+          unless params[:post_id]
+            create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
+          end
 
           pusher_message[:is_liked_by_client] = @message.post.likes.where('user_id = ?', user.id).present?
           pusher_message[:is_flagged_by_client] = @message.post.flags.where('user_id = ?', user.id).present?

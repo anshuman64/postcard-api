@@ -15,7 +15,7 @@ class Friendship < ApplicationRecord
   end
 
   def self.query_friends(user)
-    friends = user.friends_as_requester.where('status = ?', 'ACCEPTED and firebase_uid IS NOT NULL') | user.friends_as_requestee.where('status = ? and firebase_uid IS NOT NULL', 'ACCEPTED')
+    friends = user.friends_as_requester.where('status = ? and firebase_uid IS NOT NULL', 'ACCEPTED') | user.friends_as_requestee.where('status = ? and firebase_uid IS NOT NULL', 'ACCEPTED')
 
     sort_friends_by_recent_messages(user.id, friends)
   end
