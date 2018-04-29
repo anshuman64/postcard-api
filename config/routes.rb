@@ -30,9 +30,10 @@ Rails.application.routes.draw do
     post   'flags',                    to: 'flags#create_flag'
     delete 'flags/:post_id',           to: 'flags#destroy_flag'
 
+    # NOTE: Follows are deprecated
     # 'Follows' routes
-    post   'follows',                  to: 'follows#create_follow'
-    delete 'follows/:followee_id',     to: 'follows#destroy_follow'
+    # post   'follows',                  to: 'follows#create_follow'
+    # delete 'follows/:followee_id',     to: 'follows#destroy_follow'
 
     # 'Blocks' routes
     get    'blocks',                   to: 'blocks#get_blocked_users'
