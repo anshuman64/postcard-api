@@ -97,9 +97,11 @@ class Api::PostsController < ApplicationController
     is_public = params[:is_public] || false
 
     @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
-    pusher_user_ids = []
 
     if @post.save
+      pusher_user_ids = []
+      sms_user_phone_numbers = []
+
       if params[:recipient_ids]
         pusher_user_ids += params[:recipient_ids]
 
@@ -112,30 +114,38 @@ class Api::PostsController < ApplicationController
       if params[:group_ids]
         params[:group_ids].each do |group_id|
           create_share(@post.id, nil, group_id)
-          pusher_user_ids += Group.find(group_id).groupling_users.pluck(:id)
+          groupling_users = Group.find(group_id).groupling_users
+          pusher_user_ids += groupling_users.pluck(:id)
+          sms_user_phone_numbers += groupling_users.where('firebase_uid IS NULL').pluck(:phone_number)
           next
         end
       end
 
       # Don't add to pusher_user_ids because they don't need pusher events
       if params[:contact_phone_numbers]
-        twilio_post_preview = "User \"" + @client.username + "\" sent you a post on Postcard!:"
-        twilio_post_preview += "\n\n\"" + params[:body] + "\"" if params[:body]
-        twilio_post_preview += "\n\n[Image attached]" if params[:image_url]
-        twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
+        sms_user_phone_numbers += params[:contact_phone_numbers]
 
         params[:contact_phone_numbers].each do |phone_number|
           contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
           if contact_user
             create_share(@post.id, contact_user.id, nil)
-            send_twilio_sms(phone_number, twilio_post_preview)
             next
           else
             render json: [contact_error], status: 422 and return
           end
 
         end
+      end
+
+      # Create Twilio SMS
+      twilio_post_preview = "User \"" + @client.username + "\" sent you a post on Postcard!:"
+      twilio_post_preview += "\n\n\"" + params[:body] + "\"" if params[:body]
+      twilio_post_preview += "\n\n[Image attached]" if params[:image_url]
+      twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
+
+      sms_user_phone_numbers.uniq.each do |phone_number|
+        send_twilio_sms(phone_number, twilio_post_preview)
       end
 
       # Create pusher_post
@@ -148,10 +158,9 @@ class Api::PostsController < ApplicationController
       pusher_post[:group_recipient_ids] = group_recipient_ids
       pusher_post[:author] = @post.author.as_json
 
-      pusher_user_ids = pusher_user_ids.uniq
-      pusher_user_ids.each do |user_id|
+      pusher_user_ids.uniq.each do |user_id|
         unless user_id == @client.id
-          user = User.find(user_id)
+          user = User.find(user_id) # TODO: speed this up
           pusher_post[:is_liked_by_client] = @post.likes.where('user_id = ?', user.id).present?
           pusher_post[:is_flagged_by_client] = @post.flags.where('user_id = ?', user.id).present?
           pusher_post[:user_ids_with_client] = user_recipient_ids & [user.id]
