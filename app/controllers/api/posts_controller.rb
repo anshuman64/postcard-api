@@ -119,7 +119,7 @@ class Api::PostsController < ApplicationController
 
       # Don't add to pusher_user_ids because they don't need pusher events
       if params[:contact_phone_numbers]
-        twilio_post_preview = "User \'" + @client.username + "\' sent you a post on Postcard!:"
+        twilio_post_preview = "User \"" + @client.username + "\" sent you a post on Postcard!:"
         twilio_post_preview += "\n\n\"" + params[:body] + "\"" if params[:body]
         twilio_post_preview += "\n\n[Image attached]" if params[:image_url]
         twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
