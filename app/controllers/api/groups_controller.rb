@@ -178,7 +178,7 @@ class Api::GroupsController < ApplicationController
     end
 
     # Update all members using Pusher
-    @group.grouplings.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
+    @group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
       Pusher.trigger('private-' + groupling.user_id.to_s, 'remove-group', { group_id: @group.id })
     end
 

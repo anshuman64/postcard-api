@@ -69,7 +69,7 @@ class ApplicationController < ActionController::API
       #   to:   phone_number,
       #   from: "+14088831259"
       # )
-    rescue Twilio::REST::RequestError => e
+    rescue Twilio::REST::RestError => e
       puts e.message
     end
   end
