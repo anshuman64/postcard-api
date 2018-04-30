@@ -11,19 +11,19 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
-  def get_my_authored_posts
+  def get_client_authored_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true, @client)
+    @posts = Post.query_client_authored_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
 
-  def get_authored_posts
+  def get_user_authored_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
@@ -32,24 +32,24 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false, @client)
+    @posts = Post.query_user_authored_posts(params[:limit], params[:start_at], @client, user)
 
     render 'api/posts/index'
   end
 
-  def get_my_liked_posts
+  def get_client_liked_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
       render json: [error], status: 401 and return
     end
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true, @client)
+    @posts = Post.query_client_liked_posts(params[:limit], params[:start_at], @client)
 
     render 'api/posts/index'
   end
 
-  def get_liked_posts
+  def get_user_liked_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
     if error
@@ -58,7 +58,7 @@ class Api::PostsController < ApplicationController
 
     user = User.find(params[:user_id])
 
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false, @client)
+    @posts = Post.query_user_liked_posts(params[:limit], params[:start_at], @client, user)
 
     render 'api/posts/index'
   end

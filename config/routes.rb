@@ -13,10 +13,10 @@ Rails.application.routes.draw do
     # TODO: test that authored/liked routes work without user_id sent
     # 'Posts' routes
     get    'posts',                    to: 'posts#get_received_posts'
-    get    'posts/authored',           to: 'posts#get_my_authored_posts'
-    get    'posts/authored/:user_id',  to: 'posts#get_authored_posts'
-    get    'posts/liked',              to: 'posts#get_my_liked_posts'
-    get    'posts/liked/:user_id',     to: 'posts#get_liked_posts'
+    get    'posts/authored',           to: 'posts#get_client_authored_posts'
+    get    'posts/authored/:user_id',  to: 'posts#get_user_authored_posts'
+    get    'posts/liked',              to: 'posts#get_client_liked_posts'
+    get    'posts/liked/:user_id',     to: 'posts#get_user_liked_posts'
     # get    'posts/followed',           to: 'posts#get_followed_posts' # NOTE: Follows are deprecated
     post   'posts',                    to: 'posts#create_post'
     delete 'posts/:id',                to: 'posts#destroy_post'

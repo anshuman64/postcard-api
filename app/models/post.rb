@@ -31,35 +31,58 @@ class Post < ApplicationRecord
     Post.where('id < ? and id IN (?) and id NOT IN (?) and author_id NOT IN (?)', start_at, posts_array, flagged_post_ids, blocked_user_post_ids).last(limit).reverse
   end
 
-  def self.query_authored_posts(limit, start_at, author, fetch_all, client)
-    most_recent_post = author.posts.last
+  def self.query_client_authored_posts(limit, start_at, client)
+    most_recent_post = client.posts.last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
 
-    if fetch_all
-      return author.posts.where('id < ? and id NOT IN (?)', start_at, flagged_post_ids).last(limit).reverse
-    else
-      return author.posts.where('id < ? and is_public = ? and id NOT IN (?)', start_at, true, flagged_post_ids).last(limit).reverse
-    end
+    return client.posts.where('id < ? and id NOT IN (?)', start_at, flagged_post_ids).last(limit).reverse
   end
 
-  def self.query_liked_posts(limit, start_at, user, fetch_all, client)
-    most_recent_post = user.liked_posts.last
+  def self.query_client_liked_posts(limit, start_at, client)
+    most_recent_post = client.liked_posts.last
+
+    limit    ||= DEFAULT_LIMIT
+    start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
+
+    flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
+    blocked_user_post_ids = client.blockees.ids.count > 0 ? client.blockees.ids : 0
+
+    # TODO: figure out how this query works
+    return client.liked_posts.where('post_id < ? and post_id NOT IN (?) and author_id NOT IN (?)', start_at, flagged_post_ids, blocked_user_post_ids).last(limit).reverse
+  end
+
+  def self.query_user_authored_posts(limit, start_at, client, user)
+    if user.blockers.where('blocker_id = ?', client.id).present?
+      return []
+    end
+
+    posts_array = client.received_posts.where('author_id = ?', user.id).ids + client.received_posts_from_groups.where('author_id = ?', user.id).ids + user.posts.where('is_public = ?', true).ids
+
+    limit    ||= DEFAULT_LIMIT
+    start_at ||= (posts_array.empty? ? DEFAULT_START_AT : posts_array.max + 1)
+
+    flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
+
+    Post.where('id < ? and id IN (?) and id NOT IN (?)', start_at, posts_array, flagged_post_ids).last(limit).reverse
+  end
+
+  def self.query_user_liked_posts(limit, start_at, client, user)
+    if user.blockers.where('blocker_id = ?', client.id).present?
+      return []
+    end
+
+    most_recent_post = user.liked_posts.where('is_public = ?', true).last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
 
-    # TODO: figure out how this query works
-    if fetch_all
-      return user.liked_posts.where('post_id < ? and post_id NOT IN (?)', start_at, flagged_post_ids).last(limit).reverse
-    else
-      return user.liked_posts.where('post_id < ? and is_public = ? and post_id NOT IN (?)', start_at, true, flagged_post_ids).last(limit).reverse
-    end
+    return user.liked_posts.where('post_id < ? and is_public = ? and post_id NOT IN (?)', start_at, true, flagged_post_ids).last(limit).reverse
   end
 
   # NOTE: Follows are deprecrated. P.S. this is a terribly written query
