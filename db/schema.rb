@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180430175919) do
+ActiveRecord::Schema.define(version: 20180501142811) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -96,12 +96,14 @@ ActiveRecord::Schema.define(version: 20180430175919) do
 
   create_table "media", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "owner_id", null: false
-    t.string "url", null: false
-    t.string "medium_type", default: "PHOTO", null: false
+    t.string "aws_path", null: false
+    t.string "mime_type", null: false
     t.integer "post_id"
     t.integer "message_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "height", null: false
+    t.integer "width", null: false
     t.index ["message_id"], name: "index_media_on_message_id"
     t.index ["owner_id"], name: "index_media_on_owner_id"
     t.index ["post_id"], name: "index_media_on_post_id"
@@ -152,6 +154,8 @@ ActiveRecord::Schema.define(version: 20180430175919) do
     t.string "phone_number"
     t.string "email"
     t.boolean "is_banned", default: false, null: false
+    t.integer "avatar_medium_id"
+    t.index ["avatar_medium_id"], name: "index_users_on_avatar_medium_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["firebase_uid"], name: "index_users_on_firebase_uid", unique: true
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
