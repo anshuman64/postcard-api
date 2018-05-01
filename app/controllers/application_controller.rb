@@ -103,24 +103,6 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_circling(circle_id, user_id, group_id)
-    circling = Circling.new({ circle_id: circle_id, user_id: user_id, group_id: group_id })
-
-    unless circling.save
-      render json: ['Creating circle failed.'], status: 422 and return
-    end
-  end
-
-  def create_groupling(group_id, user_id)
-    groupling = Groupling.new({ group_id: group_id, user_id: user_id })
-
-    unless groupling.save
-      render json: ['Creating group failed.'], status: 422 and return
-    end
-
-    return groupling
-  end
-
   def send_pusher_group_to_grouplings(group, exempt_user_ids, pusher_type, client)
     pusher_group = group.as_json
 
@@ -160,26 +142,6 @@ class ApplicationController < ActionController::API
     end
 
     return message_preview
-  end
-
-  def create_share(post_id, recipient_id, group_id)
-    share = Share.new({ post_id: post_id, recipient_id: recipient_id, group_id: group_id })
-
-    unless share.save
-      render json: ['Sharing posts failed.'], status: 422 and return
-    end
-
-    return share
-  end
-
-  def create_medium(url, medium_type, owner_id, post_id, message_id)
-    medium = Medium.new({ url: url, medium_type: medium_type, owner_id: owner_id, post_id: post_id, message_id: message_id })
-
-    unless medium.save
-      render json: ['Creating media failed.'], status: 422 and return
-    end
-
-    return medium
   end
 
 end

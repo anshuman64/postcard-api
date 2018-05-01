@@ -96,7 +96,12 @@ class Api::PostsController < ApplicationController
         pusher_user_ids += params[:recipient_ids]
 
         params[:recipient_ids].each do |recipient_id|
-          create_share(@post.id, recipient_id, nil)
+          share = Share.new({ post_id: @post.id, recipient_id: recipient_id })
+
+          unless share.save
+            render json: share.errors.full_messages, status: 422 and return
+          end
+
           next
         end
       end
@@ -104,7 +109,12 @@ class Api::PostsController < ApplicationController
       # Create shares for groups
       if params[:group_ids]
         params[:group_ids].each do |group_id|
-          create_share(@post.id, nil, group_id)
+          share = Share.new({ post_id: @post.id, group_id: group_id })
+
+          unless share.save
+            render json: share.errors.full_messages, status: 422 and return
+          end
+
           groupling_users = Group.find(group_id).groupling_users
           pusher_user_ids += groupling_users.pluck(:id)
           sms_user_phone_numbers += groupling_users.where('firebase_uid IS NULL').pluck(:phone_number)
@@ -121,7 +131,12 @@ class Api::PostsController < ApplicationController
           contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
           if contact_user
-            create_share(@post.id, contact_user.id, nil)
+            share = Share.new({ post_id: @post.id, recipient_id: contact_user.id })
+
+            unless share.save
+              render json: share.errors.full_messages, status: 422 and return
+            end
+
             next
           else
             render json: [contact_error], status: 422 and return
@@ -133,8 +148,7 @@ class Api::PostsController < ApplicationController
       # Create media for photos
       if params[:photos]
         params[:photos].each do |photo_path|
-          puts photo_path
-          medium = Medium.new({ url: photo_path.to_s, owner_id: @client.id, post_id: @post.id })
+          medium = Medium.new({ url: photo_path, media_type: 'PHOTO', owner_id: @client.id, post_id: @post.id })
 
           unless medium.save
             render json: medium.errors.full_messages, status: 422 and return
@@ -147,7 +161,11 @@ class Api::PostsController < ApplicationController
       # Create media for videos
       if params[:videos]
         params[:videos].each do |video_path|
-          create_medium(video_path, 'VIDEO', @client.id, @post.id, nil)
+          medium = Medium.new({ url: video_path, media_type: 'VIDEO', owner_id: @client.id, post_id: @post.id })
+
+          unless medium.save
+            render json: medium.errors.full_messages, status: 422 and return
+          end
           next
         end
       end
