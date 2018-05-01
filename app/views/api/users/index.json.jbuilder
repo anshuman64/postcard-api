@@ -1,5 +1,7 @@
 json.array! @users do |user|
-  json.(user, :id, :firebase_uid, :username, :phone_number, :email, :avatar_url, :is_banned, :created_at, :updated_at)
+  json.(user, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :avatar_url, :is_banned, :created_at, :updated_at)
+
+  json.avatar_medium Medium.find(user[:avatar_medium_id]) if user[:avatar_medium_id]
 
   # json.is_user_followed_by_client user.followers.where('follower_id = ?', @client.id).present? # NOTE: Follows are deprecated
   json.is_user_blocked_by_client user.blockers.where('blocker_id = ?', @client.id).present?

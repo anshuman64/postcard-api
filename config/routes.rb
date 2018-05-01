@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     get    'users',                    to: 'users#find_user'
     post   'users',                    to: 'users#create_user'
     put    'users',                    to: 'users#edit_user'
+    put    'users/avatar',             to: 'users#edit_avatar'
 
     # TODO: test that authored/liked routes work without user_id sent
     # 'Posts' routes

@@ -146,26 +146,14 @@ class Api::PostsController < ApplicationController
       end
 
       # Create media for photos
-      if params[:photos]
-        params[:photos].each do |photo_path|
-          medium = Medium.new({ url: photo_path, media_type: 'PHOTO', owner_id: @client.id, post_id: @post.id })
+      if params[:media]
+        params[:media].each do |medium_object|
+          medium = Medium.new({ aws_path: medium_object[:awsPath], mime_type: medium_object[:mime], height: medium_object[:height], width: medium_object[:width], owner_id: @client.id, post_id: @post.id })
 
           unless medium.save
             render json: medium.errors.full_messages, status: 422 and return
           end
 
-          next
-        end
-      end
-
-      # Create media for videos
-      if params[:videos]
-        params[:videos].each do |video_path|
-          medium = Medium.new({ url: video_path, media_type: 'VIDEO', owner_id: @client.id, post_id: @post.id })
-
-          unless medium.save
-            render json: medium.errors.full_messages, status: 422 and return
-          end
           next
         end
       end

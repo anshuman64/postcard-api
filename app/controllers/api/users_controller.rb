@@ -56,6 +56,30 @@ class Api::UsersController < ApplicationController
     end
   end
 
+  def edit_avatar
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    if params[:medium]
+      medium = Medium.new({ aws_path: params[:medium][:awsPath], mime_type: params[:medium][:mime], height: params[:medium][:height], width: params[:medium][:width], owner_id: @client.id })
+
+      unless medium.save
+        render json: medium.errors.full_messages, status: 422 and return
+      end
+
+      avatar_medium_id = medium.id
+    end
+
+    if @client.update({ avatar_medium_id: avatar_medium_id })
+      render 'api/users/show'
+    else
+      render json: @client.errors.full_messages, status: 422
+    end
+  end
+
   private
 
   def user_params
