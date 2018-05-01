@@ -4,7 +4,6 @@ class Message < ApplicationRecord
 
   validates :author_id, presence: true
   validate  :validate_message_ownership
-  validate  :validate_message_content
 
   belongs_to(:author, class_name: :User, foreign_key: :author_id, primary_key: :id)
 
@@ -80,12 +79,6 @@ class Message < ApplicationRecord
   def validate_message_ownership
     if self.friendship.blank? && self.group.blank?
       self.errors.add :base, 'Require friendship_id or group_id.'
-    end
-  end
-
-  def validate_message_content
-    if self.body.blank? && self.image_url.blank? && self.post_id.blank?
-      self.errors.add :base, 'Require post body, image_url, or post_id.'
     end
   end
 

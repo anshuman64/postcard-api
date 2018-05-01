@@ -49,9 +49,23 @@ class Api::MessagesController < ApplicationController
       render json: ['Post as message already exists'], status: 403 and return
     end
 
-    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], friendship_id: friendship.id })
+    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id })
 
     if @message.save
+      if params[:media_path]
+        if params[:medium_type] == 'video/mp4'
+          medium_type = 'VIDEO'
+        else
+          medium_type = 'PHOTO'
+        end
+
+        medium = Medium.new({ url: params[:media_path], medium_type: medium_type, owner_id: @client.id, message_id: @message.id })
+
+        unless medium.save
+          render json: medium.errors.full_messages, status: 422 and return
+        end
+      end
+
       pusher_message = get_pusher_message(@message, @client.id)
       Pusher.trigger('private-' + params[:recipient_id].to_s, 'receive-message', { client_id:  @client.id, message: pusher_message })
 
@@ -86,6 +100,20 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
 
     if @message.save
+      if params[:media_path]
+        if params[:medium_type] == 'video/mp4'
+          medium_type = 'VIDEO'
+        else
+          medium_type = 'PHOTO'
+        end
+
+        medium = Medium.new({ url: params[:media_path], medium_type: medium_type, owner_id: @client.id, message_id: @message.id })
+
+        unless medium.save
+          render json: medium.errors.full_messages, status: 422 and return
+        end
+      end
+
       pusher_message = get_pusher_message(@message, @client.id)
       message_preview = get_message_notification_preview(@message)
 
