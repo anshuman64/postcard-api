@@ -85,12 +85,13 @@ class Api::PostsController < ApplicationController
 
     is_public = params[:is_public] || false
 
-    @post = Post.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], is_public: is_public })
+    @post = Post.new({ author_id: @client.id, body: params[:body], is_public: is_public })
 
     if @post.save
       pusher_user_ids = []
       sms_user_phone_numbers = []
 
+      # Create shares for single recipients
       if params[:recipient_ids]
         pusher_user_ids += params[:recipient_ids]
 
@@ -100,6 +101,7 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      # Create shares for groups
       if params[:group_ids]
         params[:group_ids].each do |group_id|
           create_share(@post.id, nil, group_id)
@@ -110,6 +112,7 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      # Create shares for contacts
       # Don't add to pusher_user_ids because they don't need pusher events
       if params[:contact_phone_numbers]
         sms_user_phone_numbers += params[:contact_phone_numbers]
@@ -127,10 +130,32 @@ class Api::PostsController < ApplicationController
         end
       end
 
+      # Create media for photos
+      if params[:photos]
+        params[:photos].each do |photo_path|
+          puts photo_path
+          medium = Medium.new({ url: photo_path.to_s, owner_id: @client.id, post_id: @post.id })
+
+          unless medium.save
+            render json: medium.errors.full_messages, status: 422 and return
+          end
+
+          next
+        end
+      end
+
+      # Create media for videos
+      if params[:videos]
+        params[:videos].each do |video_path|
+          create_medium(video_path, 'VIDEO', @client.id, @post.id, nil)
+          next
+        end
+      end
+
       # Create Twilio SMS
       twilio_post_preview = "User \"" + @client.username + "\" sent you a post on Postcard!:"
       twilio_post_preview += "\n\n\"" + params[:body] + "\"" if params[:body]
-      twilio_post_preview += "\n\n[Image attached]" if params[:image_url]
+      twilio_post_preview += "\n\n[Image attached]" if params[:photos] # TODO: make sure this works with video
       twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
 
       sms_user_phone_numbers.uniq.each do |phone_number|
@@ -141,6 +166,7 @@ class Api::PostsController < ApplicationController
       pusher_post = @post.as_json
       pusher_post[:num_likes] = @post.likes.count
       pusher_post[:num_flags] = @post.flags.count
+      pusher_post[:media]     = @post.media
       user_recipient_ids = @post.user_recipients.ids
       pusher_post[:user_recipient_ids] = user_recipient_ids
       group_recipient_ids = @post.group_recipients.ids

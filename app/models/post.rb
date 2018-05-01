@@ -18,6 +18,8 @@ class Post < ApplicationRecord
 
   has_many(:messages, class_name: :Message, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
 
+  has_many(:media, class_name: :Medium, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
+
   def self.query_received_posts(limit, start_at, client)
     friend_ids = client.friends_as_requestee.ids + client.friends_as_requester.ids
     posts_array = client.received_posts.ids + client.received_posts_from_groups.where('author_id != ?', client.id).ids + Post.where('author_id IN (?) and is_public = ?', friend_ids, true).ids

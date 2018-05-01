@@ -37,4 +37,6 @@ class User < ApplicationRecord
   has_many(:groups, through: :grouplings, source: :group)
   has_many(:received_shares_from_groups, through: :groups, source: :received_shares)
   has_many(:received_posts_from_groups, through: :received_shares_from_groups, source: :post)
+
+  has_many(:media, class_name: :Medium, foreign_key: :owner_id, primary_key: :id, dependent: :destroy)
 end

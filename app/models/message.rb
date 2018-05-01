@@ -13,6 +13,8 @@ class Message < ApplicationRecord
 
   belongs_to(:post, class_name: :Post, foreign_key: :post_id, primary_key: :id, optional: true)
 
+  has_many(:media, class_name: :Medium, foreign_key: :message_id, primary_key: :id, dependent: :destroy)
+
   def self.query_direct_messages(limit, start_at, client_id, user_id)
     friendship = Friendship.find_friendship(client_id, user_id)
 

@@ -172,4 +172,14 @@ class ApplicationController < ActionController::API
     return share
   end
 
+  def create_medium(url, medium_type, owner_id, post_id, message_id)
+    medium = Medium.new({ url: url, medium_type: medium_type, owner_id: owner_id, post_id: post_id, message_id: message_id })
+
+    unless medium.save
+      render json: ['Creating media failed.'], status: 422 and return
+    end
+
+    return medium
+  end
+
 end
