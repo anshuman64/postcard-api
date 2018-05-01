@@ -120,7 +120,7 @@ class ApplicationController < ActionController::API
 
   def get_pusher_message(message, client_id)
     pusher_message = message.as_json
-    pusher_message[:media] = message.media
+    pusher_message[:medium] = message.medium
 
     message_post = message.post
     if message_post
@@ -130,8 +130,8 @@ class ApplicationController < ActionController::API
 
       pusher_message[:post][:num_flags] = message_post.flags.count
       pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', client_id).present?
-      
-      pusher_message[:post][:media] = message_post.media
+
+      pusher_message[:post][:medium] = message_post.medium
     end
 
     return pusher_message

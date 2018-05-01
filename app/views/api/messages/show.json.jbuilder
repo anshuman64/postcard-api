@@ -1,7 +1,6 @@
 json.(@message, :id, :body, :author_id, :image_url, :friendship_id, :group_id, :post_id, :created_at, :updated_at)
 
-
-json.media @message.media
+json.medium @message.medium
 
 if @message.post
   json.post do
