@@ -3,7 +3,6 @@ class Post < ApplicationRecord
   DEFAULT_START_AT = 1
 
   validates :author_id, presence: true
-  validate  :validate_post_content
 
   belongs_to(:author, class_name: :User, foreign_key: :author_id, primary_key: :id)
 
@@ -99,12 +98,4 @@ class Post < ApplicationRecord
   #
   #   client.followees.collect{ |followee| followee.posts.where('is_public = ? and id NOT IN (?) and author_id NOT IN (?)', true, flagged_post_ids, blocked_user_post_ids) }.flatten.find_all{ |post| post.id < start_at.to_i }.sort_by{ |post| post.id }.last(limit).reverse
   # end
-
-  private
-
-  def validate_post_content
-    if self.body.blank? && self.image_url.blank?
-      self.errors.add :base, 'Require post body or image_url.'
-    end
-  end
 end

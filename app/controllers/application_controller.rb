@@ -131,7 +131,7 @@ class ApplicationController < ActionController::API
       pusher_message[:post][:num_flags] = message_post.flags.count
       pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', client_id).present?
 
-      pusher_message[:post][:medium] = message_post.medium
+      pusher_message[:post][:media] = message_post.media
     end
 
     return pusher_message
