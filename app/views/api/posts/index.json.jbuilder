@@ -20,6 +20,6 @@ json.array! @posts do |post|
   json.author do
     json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :avatar_url, :is_banned, :created_at, :updated_at)
     json.avatar_medium Medium.find(post.author[:avatar_medium_id]) if post.author[:avatar_medium_id]
-    # json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present? # NOTE: Follows are deprecated
+    json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present? # NOTE: Follows are deprecated
   end
 end

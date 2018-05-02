@@ -13,14 +13,26 @@ Rails.application.routes.draw do
 
     # TODO: test that authored/liked routes work without user_id sent
     # 'Posts' routes
-    get    'posts',                    to: 'posts#get_received_posts'
-    get    'posts/authored',           to: 'posts#get_client_authored_posts'
-    get    'posts/authored/:user_id',  to: 'posts#get_user_authored_posts'
-    get    'posts/liked',              to: 'posts#get_client_liked_posts'
-    get    'posts/liked/:user_id',     to: 'posts#get_user_liked_posts'
-    # get    'posts/followed',           to: 'posts#get_followed_posts' # NOTE: Follows are deprecated
+    # BACKWARDS COMPATABILITY: Change posts_new to posts
+    get    'posts_new',                    to: 'posts#get_received_posts'
+    get    'posts_new/authored',           to: 'posts#get_client_authored_posts'
+    get    'posts_new/authored/:user_id',  to: 'posts#get_user_authored_posts'
+    get    'posts_new/liked',              to: 'posts#get_client_liked_posts'
+    get    'posts_new/liked/:user_id',     to: 'posts#get_user_liked_posts'
+    get    'posts/followed',           to: 'posts#get_followed_posts' # NOTE: Follows are deprecated
     post   'posts',                    to: 'posts#create_post'
     delete 'posts/:id',                to: 'posts#destroy_post'
+
+    #### BACKWARDS COMPATABILITY: START ####
+    get    'posts',                    to: 'posts#get_public_posts'
+    get    'posts/authored',           to: 'posts#get_my_authored_posts'
+    get    'posts/authored/:user_id',  to: 'posts#get_authored_posts'
+    get    'posts/liked',              to: 'posts#get_my_liked_posts'
+    get    'posts/liked/:user_id',     to: 'posts#get_liked_posts'
+    get    'posts/followed',           to: 'posts#get_followed_posts'
+    get    'posts/received',           to: 'posts#get_received_posts_OLD'
+    #### BACKWARDS COMPATABILITY: END ####
+
 
     # 'Likes' routes
     post   'likes',                    to: 'likes#create_like'
@@ -32,8 +44,8 @@ Rails.application.routes.draw do
 
     # NOTE: Follows are deprecated
     # 'Follows' routes
-    # post   'follows',                  to: 'follows#create_follow'
-    # delete 'follows/:followee_id',     to: 'follows#destroy_follow'
+    post   'follows',                  to: 'follows#create_follow'
+    delete 'follows/:followee_id',     to: 'follows#destroy_follow'
 
     # 'Blocks' routes
     get    'blocks',                   to: 'blocks#get_blocked_users'

@@ -49,7 +49,7 @@ class Api::MessagesController < ApplicationController
       render json: ['Post as message already exists'], status: 403 and return
     end
 
-    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id })
+    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id, image_url: params[:image_url] }) # BACKWARDS COMPATABILITY: remove image_url
 
     if @message.save
       if params[:medium]
