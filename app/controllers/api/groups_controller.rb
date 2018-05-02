@@ -39,7 +39,7 @@ class Api::GroupsController < ApplicationController
 
         if contact_user
           create_groupling(@group.id, contact_user.id)
-          send_twilio_sms(phone_number, @client.username + " added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
+          send_twilio_sms(phone_number, "User \"" +  @client.username + "\" added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
           next
         else
           render json: [contact_error], status: 422 and return
@@ -178,7 +178,7 @@ class Api::GroupsController < ApplicationController
     end
 
     # Update all members using Pusher
-    @group.grouplings.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
+    @group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
       Pusher.trigger('private-' + groupling.user_id.to_s, 'remove-group', { group_id: @group.id })
     end
 

@@ -64,12 +64,12 @@ class ApplicationController < ActionController::API
 
   def send_twilio_sms(phone_number, message)
     begin
-      message = @@twilio_client.messages.create(
-        body: message,
-        to:   phone_number,
-        from: "+14088831259"
-      )
-    rescue Twilio::REST::RequestError => e
+      # message = @@twilio_client.messages.create(
+      #   body: message,
+      #   to:   phone_number,
+      #   from: "+14088831259"
+      # )
+    rescue Twilio::REST::RestError => e
       puts e.message
     end
   end
