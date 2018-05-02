@@ -35,6 +35,13 @@ class Api::UsersController < ApplicationController
       @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
 
       if @client.save
+        # Debug Test: uncomment for production
+        # share = Share.new({ post_id: 151, recipient_id: @client.id }) # 151 is a hard-coded number for 'Welcome to Postcard!' post
+        #
+        # unless share.save
+        #   render json: share.errors.full_messages, status: 422 and return
+        # end
+
         render 'api/users/show' and return
       else
         render json: @client.errors.full_messages, status: 422 and return

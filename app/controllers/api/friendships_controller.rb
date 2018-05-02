@@ -44,6 +44,12 @@ class Api::FriendshipsController < ApplicationController
 
     @users = Friendship.query_friends_from_contacts(@client, params[:contacts])
 
+    if params[:is_first_login]
+      @users.ids.each do |user_id|
+        create_notification(@client.id, user_id, nil, 'One of your friends joined Postcard!', { type: 'welcome-contact' })
+      end
+    end
+
     render 'api/users/index'
   end
 

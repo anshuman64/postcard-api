@@ -64,6 +64,7 @@ class ApplicationController < ActionController::API
 
   def send_twilio_sms(phone_number, message)
     begin
+      # Debug Test: uncomment for production
       # message = @@twilio_client.messages.create(
       #   body: message,
       #   to:   phone_number,
