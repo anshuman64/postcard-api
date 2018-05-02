@@ -14,6 +14,7 @@ class User < ApplicationRecord
   has_many(:blockers, through: :blocks_as_blockee, source: :blocker)
   has_many(:blockees, through: :blocks_as_blocker, source: :blockee)
 
+  # NOTE: Follows are deprecated
   has_many(:follows_as_follower, class_name: :Follow, foreign_key: :follower_id, primary_key: :id, dependent: :destroy)
   has_many(:follows_as_followee, class_name: :Follow, foreign_key: :followee_id, primary_key: :id, dependent: :destroy)
   has_many(:followers, through: :follows_as_followee, source: :follower)
@@ -36,4 +37,6 @@ class User < ApplicationRecord
   has_many(:groups, through: :grouplings, source: :group)
   has_many(:received_shares_from_groups, through: :groups, source: :received_shares)
   has_many(:received_posts_from_groups, through: :received_shares_from_groups, source: :post)
+
+  has_many(:media, class_name: :Medium, foreign_key: :owner_id, primary_key: :id, dependent: :destroy)
 end

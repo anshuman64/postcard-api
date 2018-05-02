@@ -64,12 +64,12 @@ class ApplicationController < ActionController::API
 
   def send_twilio_sms(phone_number, message)
     begin
-      message = @@twilio_client.messages.create(
-        body: message,
-        to:   phone_number,
-        from: "+14088831259"
-      )
-    rescue Twilio::REST::RequestError => e
+      # message = @@twilio_client.messages.create(
+      #   body: message,
+      #   to:   phone_number,
+      #   from: "+14088831259"
+      # )
+    rescue Twilio::REST::RestError => e
       puts e.message
     end
   end
@@ -103,24 +103,6 @@ class ApplicationController < ActionController::API
     end
   end
 
-  def create_circling(circle_id, user_id, group_id)
-    circling = Circling.new({ circle_id: circle_id, user_id: user_id, group_id: group_id })
-
-    unless circling.save
-      render json: ['Creating circle failed.'], status: 422 and return
-    end
-  end
-
-  def create_groupling(group_id, user_id)
-    groupling = Groupling.new({ group_id: group_id, user_id: user_id })
-
-    unless groupling.save
-      render json: ['Creating group failed.'], status: 422 and return
-    end
-
-    return groupling
-  end
-
   def send_pusher_group_to_grouplings(group, exempt_user_ids, pusher_type, client)
     pusher_group = group.as_json
 
@@ -138,8 +120,9 @@ class ApplicationController < ActionController::API
 
   def get_pusher_message(message, client_id)
     pusher_message = message.as_json
-    message_post = message.post
+    pusher_message[:medium] = message.medium
 
+    message_post = message.post
     if message_post
       pusher_message[:post] = message_post.as_json
       pusher_message[:post][:num_likes] = message_post.likes.count
@@ -147,6 +130,8 @@ class ApplicationController < ActionController::API
 
       pusher_message[:post][:num_flags] = message_post.flags.count
       pusher_message[:post][:is_flagged_by_client] = message_post.flags.where('user_id = ?', client_id).present?
+
+      pusher_message[:post][:media] = message_post.media
     end
 
     return pusher_message
@@ -160,16 +145,6 @@ class ApplicationController < ActionController::API
     end
 
     return message_preview
-  end
-
-  def create_share(post_id, recipient_id, group_id)
-    share = Share.new({ post_id: post_id, recipient_id: recipient_id, group_id: group_id })
-
-    unless share.save
-      render json: ['Sharing posts failed.'], status: 422 and return
-    end
-
-    return share
   end
 
 end

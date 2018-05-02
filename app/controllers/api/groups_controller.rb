@@ -26,11 +26,20 @@ class Api::GroupsController < ApplicationController
 
     if @group.save
       # Create groupling for client
-      create_groupling(@group.id, @client.id)
+      groupling = Groupling.new({ group_id: @group.id, user_id: @client.id })
+
+      unless groupling.save
+        render json: groupling.errors.full_messages, status: 422 and return
+      end
 
       # Create grouplings for other users
       params[:user_ids].each do |user_id|
-        create_groupling(@group.id, user_id)
+        groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
+
+        unless groupling.save
+          render json: groupling.errors.full_messages, status: 422 and return
+        end
+
         next
       end
 
@@ -38,8 +47,13 @@ class Api::GroupsController < ApplicationController
         contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
         if contact_user
-          create_groupling(@group.id, contact_user.id)
-          send_twilio_sms(phone_number, @client.username + " added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
+          groupling = Groupling.new({ group_id: @group.id, user_id: contact_user.id })
+
+          unless groupling.save
+            render json: groupling.errors.full_messages, status: 422 and return
+          end
+
+          send_twilio_sms(phone_number, "User \"" +  @client.username + "\" added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
           next
         else
           render json: [contact_error], status: 422 and return
@@ -65,7 +79,12 @@ class Api::GroupsController < ApplicationController
     @group = Group.find(params[:group_id])
 
     params[:user_ids].each do |user_id|
-      create_groupling(@group.id, user_id)
+      groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
+
+      unless groupling.save
+        render json: groupling.errors.full_messages, status: 422 and return
+      end
+
       next
     end
 
@@ -73,7 +92,12 @@ class Api::GroupsController < ApplicationController
       contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
       if contact_user
-        create_groupling(@group.id, contact_user.id)
+        groupling = Groupling.new({ group_id: @group.id, user_id: contact_user.id })
+
+        unless groupling.save
+          render json: groupling.errors.full_messages, status: 422 and return
+        end
+
       else
         render json: [contact_error], status: 422 and return
       end
@@ -178,7 +202,7 @@ class Api::GroupsController < ApplicationController
     end
 
     # Update all members using Pusher
-    @group.grouplings.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
+    @group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |groupling|
       Pusher.trigger('private-' + groupling.user_id.to_s, 'remove-group', { group_id: @group.id })
     end
 

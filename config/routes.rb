@@ -9,18 +9,30 @@ Rails.application.routes.draw do
     get    'users',                    to: 'users#find_user'
     post   'users',                    to: 'users#create_user'
     put    'users',                    to: 'users#edit_user'
+    put    'users/avatar',             to: 'users#edit_avatar'
 
     # TODO: test that authored/liked routes work without user_id sent
     # 'Posts' routes
+    # BACKWARDS COMPATABILITY: Change posts_new to posts
+    get    'posts_new',                    to: 'posts#get_received_posts'
+    get    'posts_new/authored',           to: 'posts#get_client_authored_posts'
+    get    'posts_new/authored/:user_id',  to: 'posts#get_user_authored_posts'
+    get    'posts_new/liked',              to: 'posts#get_client_liked_posts'
+    get    'posts_new/liked/:user_id',     to: 'posts#get_user_liked_posts'
+    get    'posts/followed',           to: 'posts#get_followed_posts' # NOTE: Follows are deprecated
+    post   'posts',                    to: 'posts#create_post'
+    delete 'posts/:id',                to: 'posts#destroy_post'
+
+    #### BACKWARDS COMPATABILITY: START ####
     get    'posts',                    to: 'posts#get_public_posts'
     get    'posts/authored',           to: 'posts#get_my_authored_posts'
     get    'posts/authored/:user_id',  to: 'posts#get_authored_posts'
     get    'posts/liked',              to: 'posts#get_my_liked_posts'
     get    'posts/liked/:user_id',     to: 'posts#get_liked_posts'
     get    'posts/followed',           to: 'posts#get_followed_posts'
-    get    'posts/received',           to: 'posts#get_received_posts'
-    post   'posts',                    to: 'posts#create_post'
-    delete 'posts/:id',                to: 'posts#destroy_post'
+    get    'posts/received',           to: 'posts#get_received_posts_OLD'
+    #### BACKWARDS COMPATABILITY: END ####
+
 
     # 'Likes' routes
     post   'likes',                    to: 'likes#create_like'
@@ -30,6 +42,7 @@ Rails.application.routes.draw do
     post   'flags',                    to: 'flags#create_flag'
     delete 'flags/:post_id',           to: 'flags#destroy_flag'
 
+    # NOTE: Follows are deprecated
     # 'Follows' routes
     post   'follows',                  to: 'follows#create_follow'
     delete 'follows/:followee_id',     to: 'follows#destroy_follow'

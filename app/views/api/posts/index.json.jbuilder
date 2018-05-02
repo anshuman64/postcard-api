@@ -7,6 +7,8 @@ json.array! @posts do |post|
   json.num_flags post.flags.count
   json.is_flagged_by_client post.flags.where('user_id = ?', @client.id).present?
 
+  json.media post.media
+
   user_recipient_ids = post.user_recipients.ids
   json.user_recipient_ids user_recipient_ids
   json.user_ids_with_client user_recipient_ids & [@client.id]
@@ -16,7 +18,8 @@ json.array! @posts do |post|
   json.group_ids_with_client group_recipient_ids & @client.groups.ids
 
   json.author do
-    json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_url, :is_banned, :created_at, :updated_at)
-    json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present?
+    json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :avatar_url, :is_banned, :created_at, :updated_at)
+    json.avatar_medium Medium.find(post.author[:avatar_medium_id]) if post.author[:avatar_medium_id]
+    json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present? # NOTE: Follows are deprecated
   end
 end
