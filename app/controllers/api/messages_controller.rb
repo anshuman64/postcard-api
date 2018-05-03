@@ -45,7 +45,7 @@ class Api::MessagesController < ApplicationController
     end
 
     # If message in the same convo with the same post exists, don't recreate it
-    if Message.where('friendship_id = ? and post_id = ?', friendship.id, params[:post_id]).exists?
+    if params[:post_id] && Message.where('friendship_id = ? and post_id = ?', friendship.id, params[:post_id]).exists?
       render json: ['Post as message already exists'], status: 403 and return
     end
 
@@ -87,7 +87,7 @@ class Api::MessagesController < ApplicationController
     end
 
     # If message in the same convo with the same post exists, don't recreate it
-    if params[:post_id] & Message.where('group_id = ? and post_id = ?', group.id, params[:post_id]).exists?
+    if params[:post_id] && Message.where('group_id = ? and post_id = ?', group.id, params[:post_id]).exists?
       render json: ['Post as message already exists'], status: 403 and return
     end
 
