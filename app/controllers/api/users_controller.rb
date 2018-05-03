@@ -23,7 +23,7 @@ class Api::UsersController < ApplicationController
     else
       render json: ['No phone number or email given'], status: 404 and return
     end
-    
+
     # Checks if phone number already has an account created by another user's SMS
     if @client
       if @client.update({ firebase_uid: firebase_uid })
@@ -36,7 +36,7 @@ class Api::UsersController < ApplicationController
 
       if @client.save
         # Debug Test: uncomment for production
-        # share = Share.new({ post_id: 151, recipient_id: @client.id }) # 151 is a hard-coded number for 'Welcome to Postcard!' post
+        # share = Share.new({ post_id: 151, recipient_id: @client.id }) # 151 is a hard-coded number for 'Welcome to Postcard!' post from contact@insiya.io account
         #
         # unless share.save
         #   render json: share.errors.full_messages, status: 422 and return
