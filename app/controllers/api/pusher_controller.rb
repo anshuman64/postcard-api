@@ -6,10 +6,10 @@ class Api::PusherController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    authorized_channel = 'private-' + client.id.to_s
     Pusher.timeout = 30
 
-    if authorized_channel == params[:channel_name]
+    # TODO: come up with a better authentication algorithm / revert to old way without client events
+    if params[:channel_name]
       response = Pusher.authenticate(params[:channel_name], params[:socket_id])
 
       render json: response
