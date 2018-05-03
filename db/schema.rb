@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180501142811) do
+ActiveRecord::Schema.define(version: 20180503203122) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false

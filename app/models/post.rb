@@ -76,14 +76,14 @@ class Post < ApplicationRecord
       return []
     end
 
-    most_recent_post = user.liked_posts.where('is_public = ?', true).last
+    most_recent_post = user.liked_posts.where('is_public = ? or author_id = ?', true, client.id).last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
 
-    return user.liked_posts.where('post_id < ? and is_public = ? and post_id NOT IN (?)', start_at, true, flagged_post_ids).last(limit).reverse
+    return user.liked_posts.where('post_id < ? and (is_public = ? or author_id = ?) and post_id NOT IN (?)', start_at, true, client.id, flagged_post_ids).last(limit).reverse
   end
 
   # NOTE: Follows are deprecated. P.S. this is a terribly written query

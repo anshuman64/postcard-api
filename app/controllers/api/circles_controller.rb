@@ -24,6 +24,7 @@ class Api::CirclesController < ApplicationController
 
     @circle = Circle.new({ creator_id: @client.id, name: params[:name] })
     if @circle.save
+      # Create circlings for users
       params[:user_ids].each do |user_id|
         circling = Circling.new({ circle_id: @circle.id, user_id: user_id })
 
@@ -34,6 +35,7 @@ class Api::CirclesController < ApplicationController
         next
       end
 
+      # Create circlings for groups
       params[:group_ids].each do |group_id|
         circling = Circling.new({ circle_id: @circle.id, group_id: group_id })
 

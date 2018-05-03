@@ -43,6 +43,7 @@ class Api::GroupsController < ApplicationController
         next
       end
 
+      # Create groupling for each contact
       params[:contact_phone_numbers].each do |phone_number|
         contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
@@ -69,6 +70,7 @@ class Api::GroupsController < ApplicationController
     end
   end
 
+  # Used when adding group members
   def create_grouplings
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
@@ -78,6 +80,7 @@ class Api::GroupsController < ApplicationController
 
     @group = Group.find(params[:group_id])
 
+    # Create groupling for each user
     params[:user_ids].each do |user_id|
       groupling = Groupling.new({ group_id: @group.id, user_id: user_id })
 
@@ -88,6 +91,7 @@ class Api::GroupsController < ApplicationController
       next
     end
 
+    # Create groupling for each contact
     params[:contact_phone_numbers].each do |phone_number|
       contact_user, contact_error = find_or_create_contact_user(@client.id, phone_number)
 
@@ -194,7 +198,7 @@ class Api::GroupsController < ApplicationController
     @group = Group.find(params[:id])
 
     unless @group
-      render json: ['Post not found'], status: 404 and return
+      render json: ['Group not found'], status: 404 and return
     end
 
     unless @group[:owner_id] == @client.id
