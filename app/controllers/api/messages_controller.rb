@@ -52,6 +52,7 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id, image_url: params[:image_url] }) # BACKWARDS COMPATABILITY: remove image_url
 
     if @message.save
+      # Create medium for attached image or video
       if params[:medium]
         medium = Medium.new({ aws_path: params[:medium][:awsPath], mime_type: params[:medium][:mime], height: params[:medium][:height], width: params[:medium][:width], owner_id: @client.id, message_id: @message.id })
 
@@ -63,6 +64,7 @@ class Api::MessagesController < ApplicationController
       pusher_message = get_pusher_message(@message, @client.id)
       Pusher.trigger('private-' + params[:recipient_id].to_s, 'receive-message', { client_id:  @client.id, message: pusher_message })
 
+      # Create notification unless it is post as message
       unless params[:post_id]
         create_notification(@client.id, params[:recipient_id], { en: @client[:username] }, get_message_notification_preview(@message), { type: 'receive-message', client_id: @client.id })
       end
@@ -94,6 +96,7 @@ class Api::MessagesController < ApplicationController
     @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
 
     if @message.save
+      # Create medium for image or video
       if params[:medium]
         medium = Medium.new({ aws_path: params[:medium][:awsPath], mime_type: params[:medium][:mime], height: params[:medium][:height], width: params[:medium][:width], owner_id: @client.id, message_id: @message.id })
 
@@ -105,20 +108,18 @@ class Api::MessagesController < ApplicationController
       pusher_message = get_pusher_message(@message, @client.id)
       message_preview = get_message_notification_preview(@message)
 
-      group.groupling_users.where('user_id != ?', @client.id).each do |user|
-        if user[:firebase_uid]
-          title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
+      group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |user|
+        title = group[:name].nil? ? @client[:username] : @client[:username] + ' > ' + group[:name]
 
-          if params[:post_id]
-            # Set the correct values for is_liked_by_client/is_flagged_by_client if there is a post, but don't create a notification
-            pusher_message[:is_liked_by_client] = @message.post.likes.where('user_id = ?', user.id).present?
-            pusher_message[:is_flagged_by_client] = @message.post.flags.where('user_id = ?', user.id).present?
-          else
-            create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
-          end
-
-          Pusher.trigger('private-' + user.id.to_s, 'receive-message', { group_id: group.id, message:  pusher_message })
+        if params[:post_id]
+          # Set the correct values for is_liked_by_client/is_flagged_by_client if there is a post, but don't create a notification
+          pusher_message[:is_liked_by_client] = @message.post.likes.where('user_id = ?', user.id).present?
+          pusher_message[:is_flagged_by_client] = @message.post.flags.where('user_id = ?', user.id).present?
+        else
+          create_notification(@client.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
         end
+
+        Pusher.trigger('private-' + user.id.to_s, 'receive-message', { group_id: group.id, message:  pusher_message })
       end
 
       render 'api/messages/show'

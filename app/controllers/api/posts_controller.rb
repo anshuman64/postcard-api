@@ -166,10 +166,7 @@ class Api::PostsController < ApplicationController
 
           next
         end
-      end
-
-      # Create media for photos and videos for shared post
-      if original_post && original_post.media
+      elsif original_post && original_post.media
         original_post.media.each do |medium_object|
           medium = Medium.new({ aws_path: medium_object[:aws_path], mime_type: medium_object[:mime_type], height: medium_object[:height], width: medium_object[:width], owner_id: @client.id, post_id: @post.id })
 

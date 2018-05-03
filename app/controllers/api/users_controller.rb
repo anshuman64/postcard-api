@@ -16,7 +16,6 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    # Checks if phone number already has an account created by another user's SMS
     if params[:phone_number]
       @client = User.find_by_phone_number(params[:phone_number])
     elsif params[:email]
@@ -24,7 +23,8 @@ class Api::UsersController < ApplicationController
     else
       render json: ['No phone number or email given'], status: 404 and return
     end
-
+    
+    # Checks if phone number already has an account created by another user's SMS
     if @client
       if @client.update({ firebase_uid: firebase_uid })
         render 'api/users/show' and return
