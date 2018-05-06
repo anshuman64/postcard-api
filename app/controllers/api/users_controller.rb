@@ -90,6 +90,6 @@ class Api::UsersController < ApplicationController
   private
 
   def user_params
-    params.permit(:phone_number, :email, :username, :avatar_url)
+    params.permit(:phone_number, :email, :username)
   end
 end
