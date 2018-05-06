@@ -20,8 +20,7 @@ class Post < ApplicationRecord
   has_many(:media, class_name: :Medium, foreign_key: :post_id, primary_key: :id, dependent: :destroy)
 
   def self.query_received_posts(limit, start_at, client)
-    friend_ids = client.friends_as_requestee.ids + client.friends_as_requester.ids
-    posts_array = client.received_posts.ids + client.received_posts_from_groups.where('author_id != ?', client.id).ids + Post.where('author_id IN (?) and is_public = ?', friend_ids, true).ids
+    posts_array = client.received_posts.ids + client.received_posts_from_groups.where('author_id != ?', client.id).ids
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (posts_array.empty? ? DEFAULT_START_AT : posts_array.max + 1)
@@ -61,7 +60,7 @@ class Post < ApplicationRecord
       return []
     end
 
-    posts_array = client.received_posts.where('author_id = ?', user.id).ids + client.received_posts_from_groups.where('author_id = ?', user.id).ids + user.posts.where('is_public = ?', true).ids
+    posts_array = client.received_posts.where('author_id = ?', user.id).ids + client.received_posts_from_groups.where('author_id = ?', user.id).ids
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (posts_array.empty? ? DEFAULT_START_AT : posts_array.max + 1)
@@ -71,19 +70,21 @@ class Post < ApplicationRecord
     Post.where('id < ? and id IN (?) and id NOT IN (?)', start_at, posts_array, flagged_post_ids).last(limit).reverse
   end
 
+  #### BACKWARDS COMPATABILITY: START ####
   def self.query_user_liked_posts(limit, start_at, client, user)
     if user.blockers.where('blocker_id = ?', client.id).present?
       return []
     end
 
-    most_recent_post = user.liked_posts.where('is_public = ? or author_id = ?', true, client.id).last
+    most_recent_post = user.liked_posts.where('author_id = ?', client.id).last
 
     limit    ||= DEFAULT_LIMIT
     start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
 
     flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
 
-    return user.liked_posts.where('post_id < ? and (is_public = ? or author_id = ?) and post_id NOT IN (?)', start_at, true, client.id, flagged_post_ids).last(limit).reverse
+    return user.liked_posts.where('post_id < ? and (author_id = ?) and post_id NOT IN (?)', start_at, client.id, flagged_post_ids).last(limit).reverse
   end
+  #### BACKWARDS COMPATABILITY: END ####
 
 end

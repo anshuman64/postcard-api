@@ -49,6 +49,7 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
+  #### BACKWARDS COMPATABILITY: START ####
   def get_user_liked_posts
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
@@ -62,6 +63,7 @@ class Api::PostsController < ApplicationController
 
     render 'api/posts/index'
   end
+  #### BACKWARDS COMPATABILITY: END ####
 
   def create_post
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
@@ -70,8 +72,6 @@ class Api::PostsController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    is_public = params[:is_public] || false
-
     if params[:post_id]
       original_post = Post.find(params[:post_id])
 
@@ -79,9 +79,9 @@ class Api::PostsController < ApplicationController
         render json: ['Post not found'], status: 404 and return
       end
 
-      @post = Post.new({ author_id: @client.id, body: original_post[:body], is_public: is_public })
+      @post = Post.new({ author_id: @client.id, body: original_post[:body] })
     else
-      @post = Post.new({ author_id: @client.id, body: params[:body], is_public: is_public })
+      @post = Post.new({ author_id: @client.id, body: params[:body] })
     end
 
     if @post.save
