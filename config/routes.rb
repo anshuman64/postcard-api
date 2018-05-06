@@ -18,7 +18,6 @@ Rails.application.routes.draw do
     get    'posts/authored/:user_id',  to: 'posts#get_user_authored_posts'
     get    'posts/liked',              to: 'posts#get_client_liked_posts'
     get    'posts/liked/:user_id',     to: 'posts#get_user_liked_posts'
-    get    'posts/followed',           to: 'posts#get_followed_posts' # NOTE: Follows are deprecated
     post   'posts',                    to: 'posts#create_post'
     delete 'posts/:id',                to: 'posts#destroy_post'
 
@@ -32,8 +31,8 @@ Rails.application.routes.draw do
 
     # NOTE: Follows are deprecated
     # 'Follows' routes
-    post   'follows',                  to: 'follows#create_follow'
-    delete 'follows/:followee_id',     to: 'follows#destroy_follow'
+    # post   'follows',                  to: 'follows#create_follow'
+    # delete 'follows/:followee_id',     to: 'follows#destroy_follow'
 
     # 'Blocks' routes
     get    'blocks',                   to: 'blocks#get_blocked_users'

@@ -86,17 +86,4 @@ class Post < ApplicationRecord
     return user.liked_posts.where('post_id < ? and (is_public = ? or author_id = ?) and post_id NOT IN (?)', start_at, true, client.id, flagged_post_ids).last(limit).reverse
   end
 
-  # NOTE: Follows are deprecated. P.S. this is a terribly written query
-  # def self.query_followed_posts(limit, start_at, client)
-  #   most_recent_post = client.followees.collect{ |followee| followee.posts }.flatten.sort_by{ |post| post.id }.last
-  #
-  #   limit    ||= DEFAULT_LIMIT
-  #   start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
-  #
-  #   flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
-  #   blocked_user_post_ids = client.blockees.ids.count > 0 ? client.blockees.ids : 0
-  #
-  #   client.followees.collect{ |followee| followee.posts.where('is_public = ? and id NOT IN (?) and author_id NOT IN (?)', true, flagged_post_ids, blocked_user_post_ids) }.flatten.find_all{ |post| post.id < start_at.to_i }.sort_by{ |post| post.id }.last(limit).reverse
-  # end
-
 end
