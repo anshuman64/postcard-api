@@ -92,9 +92,9 @@ class Api::PostsController < ApplicationController
         render json: ['Post not found'], status: 404 and return
       end
 
-      @post = Post.new({ author_id: @client.id, body: original_post[:body], is_public: is_public, image_url: original_post[:image_url] }) # BACKWARDS COMPATABILITY: remove image_url
+      @post = Post.new({ author_id: @client.id, body: original_post[:body], is_public: is_public })
     else
-      @post = Post.new({ author_id: @client.id, body: params[:body], is_public: is_public, image_url: params[:image_url] }) # BACKWARDS COMPATABILITY: remove image_url
+      @post = Post.new({ author_id: @client.id, body: params[:body], is_public: is_public })
     end
 
     if @post.save
@@ -242,96 +242,5 @@ class Api::PostsController < ApplicationController
       render json: @post.errors.full_messages, status: 422
     end
   end
-
-
-  #### BACKWARD COMPATABILITY: START ####
-  def get_public_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    @posts = Post.query_public_posts(params[:limit], params[:start_at], @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_my_authored_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], @client, true, @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_authored_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    user = User.find(params[:user_id])
-
-    @posts = Post.query_authored_posts(params[:limit], params[:start_at], user, false, @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_my_liked_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], @client, true, @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_liked_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    user = User.find(params[:user_id])
-
-    @posts = Post.query_liked_posts(params[:limit], params[:start_at], user, false, @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_followed_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    @posts = Post.query_followed_posts(params[:limit], params[:start_at], @client)
-
-    render 'api/posts/index'
-  end
-
-  def get_received_posts_OLD
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    @posts = Post.query_received_posts_OLD(params[:limit], params[:start_at], @client)
-
-    render 'api/posts/index'
-  end
-  #### BACKWARDS COMPATABILITY: END ####
 
 end
