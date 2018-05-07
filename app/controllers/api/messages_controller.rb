@@ -49,7 +49,7 @@ class Api::MessagesController < ApplicationController
       render json: ['Post as message already exists'], status: 403 and return
     end
 
-    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id, image_url: params[:image_url] }) # BACKWARDS COMPATABILITY: remove image_url
+    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], friendship_id: friendship.id })
 
     if @message.save
       # Create medium for attached image or video
@@ -93,7 +93,7 @@ class Api::MessagesController < ApplicationController
       render json: ['Post as message already exists'], status: 403 and return
     end
 
-    @message = Message.new({ author_id: @client.id, body: params[:body], image_url: params[:image_url], post_id: params[:post_id], group_id: group.id })
+    @message = Message.new({ author_id: @client.id, body: params[:body], post_id: params[:post_id], group_id: group.id })
 
     if @message.save
       # Create medium for image or video

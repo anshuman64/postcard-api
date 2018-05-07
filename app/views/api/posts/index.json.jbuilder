@@ -1,5 +1,5 @@
 json.array! @posts do |post|
-  json.(post, :id, :body, :author_id, :image_url, :is_public, :created_at, :updated_at)
+  json.(post, :id, :body, :author_id, :created_at, :updated_at)
 
   json.num_likes post.likes.count
   json.is_liked_by_client post.likes.where('user_id = ?', @client.id).present?
@@ -18,8 +18,7 @@ json.array! @posts do |post|
   json.group_ids_with_client group_recipient_ids & @client.groups.ids
 
   json.author do
-    json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :avatar_url, :is_banned, :created_at, :updated_at)
+    json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :is_banned, :created_at, :updated_at)
     json.avatar_medium Medium.find(post.author[:avatar_medium_id]) if post.author[:avatar_medium_id]
-    json.is_user_followed_by_client post.author.followers.where('follower_id = ?', @client.id).present? # NOTE: Follows are deprecated
   end
 end

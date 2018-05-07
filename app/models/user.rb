@@ -15,10 +15,10 @@ class User < ApplicationRecord
   has_many(:blockees, through: :blocks_as_blocker, source: :blockee)
 
   # NOTE: Follows are deprecated
-  has_many(:follows_as_follower, class_name: :Follow, foreign_key: :follower_id, primary_key: :id, dependent: :destroy)
-  has_many(:follows_as_followee, class_name: :Follow, foreign_key: :followee_id, primary_key: :id, dependent: :destroy)
-  has_many(:followers, through: :follows_as_followee, source: :follower)
-  has_many(:followees, through: :follows_as_follower, source: :followee)
+  # has_many(:follows_as_follower, class_name: :Follow, foreign_key: :follower_id, primary_key: :id, dependent: :destroy)
+  # has_many(:follows_as_followee, class_name: :Follow, foreign_key: :followee_id, primary_key: :id, dependent: :destroy)
+  # has_many(:followers, through: :follows_as_followee, source: :follower)
+  # has_many(:followees, through: :follows_as_follower, source: :followee)
 
   has_many(:friendships_as_requester, class_name: :Friendship, foreign_key: :requester_id, primary_key: :id, dependent: :destroy)
   has_many(:friendships_as_requestee, class_name: :Friendship, foreign_key: :requestee_id, primary_key: :id, dependent: :destroy)
