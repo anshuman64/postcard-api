@@ -6,7 +6,11 @@ class Api::UsersController < ApplicationController
       render json: [error], status: 401 and return
     end
 
-    render 'api/users/show'
+    if @client.touch(:last_login)
+      render 'api/users/show'
+    else
+      render json: @client.errors.full_messages, status: 422 and return
+    end
   end
 
   def create_user
@@ -26,13 +30,13 @@ class Api::UsersController < ApplicationController
 
     # Checks if phone number already has an account created by another user's SMS
     if @client
-      if @client.update({ firebase_uid: firebase_uid })
+      if @client.update({ firebase_uid: firebase_uid, last_login: Time.now })
         render 'api/users/show' and return
       else
         render json: @client.errors.full_messages, status: 422 and return
       end
     else
-      @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email] })
+      @client = User.new({ phone_number: params[:phone_number], firebase_uid: firebase_uid, email: params[:email], last_login: Time.now })
 
       if @client.save
         # Debug Test: uncomment for production
@@ -90,6 +94,6 @@ class Api::UsersController < ApplicationController
   private
 
   def user_params
-    params.permit(:phone_number, :email, :username)
+    params.permit(:phone_number, :email, :username, :full_name)
   end
 end
