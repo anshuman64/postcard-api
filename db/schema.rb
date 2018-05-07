@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20180506224553) do
+ActiveRecord::Schema.define(version: 20180507230304) do
 
   create_table "blocks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin" do |t|
     t.integer "blocker_id", null: false
@@ -152,6 +152,8 @@ ActiveRecord::Schema.define(version: 20180506224553) do
     t.string "email"
     t.boolean "is_banned", default: false, null: false
     t.integer "avatar_medium_id"
+    t.string "full_name"
+    t.datetime "last_login", default: "2018-05-07 23:07:37", null: false
     t.index ["avatar_medium_id"], name: "index_users_on_avatar_medium_id"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["firebase_uid"], name: "index_users_on_firebase_uid", unique: true
