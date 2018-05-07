@@ -14,6 +14,5 @@ json.array! @users do |user|
       end
 
     end
-
   end
 end

@@ -22,11 +22,6 @@ json.array! @messages do |message|
       group_recipient_ids = post.group_recipients.ids
       json.group_recipient_ids group_recipient_ids
       json.group_ids_with_client group_recipient_ids & @client.groups.ids
-
-      json.author do
-        json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :is_banned, :created_at, :updated_at)
-        json.avatar_medium Medium.find(post.author[:avatar_medium_id]) if post.author[:avatar_medium_id]
-      end
     end
   end
 end
