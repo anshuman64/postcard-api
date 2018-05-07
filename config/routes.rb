@@ -17,9 +17,19 @@ Rails.application.routes.draw do
     get    'posts/authored',           to: 'posts#get_client_authored_posts'
     get    'posts/authored/:user_id',  to: 'posts#get_user_authored_posts'
     get    'posts/liked',              to: 'posts#get_client_liked_posts'
-    get    'posts/liked/:user_id',     to: 'posts#get_user_liked_posts' # BACKWARDS COMPATABILITY
+    get    'posts/liked/:user_id',     to: 'posts#get_user_liked_posts'
     post   'posts',                    to: 'posts#create_post'
     delete 'posts/:id',                to: 'posts#destroy_post'
+
+
+    # BACKWARDS COMPATABILITY: START
+    get    'posts_new',                    to: 'posts#get_received_posts'
+    get    'posts_new/authored',           to: 'posts#get_client_authored_posts'
+    get    'posts_new/authored/:user_id',  to: 'posts#get_user_authored_posts'
+    get    'posts_new/liked',              to: 'posts#get_client_liked_posts'
+    get    'posts_new/liked/:user_id',     to: 'posts#get_user_liked_posts'
+    # BACKWARDS COMPATABILITY: END
+
 
     # 'Likes' routes
     post   'likes',                    to: 'likes#create_like'
