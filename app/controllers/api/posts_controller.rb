@@ -166,10 +166,10 @@ class Api::PostsController < ApplicationController
       end
 
       # Create Twilio SMS
-      twilio_post_preview = "User \"" + @client.username + "\" sent you a post on Postcard!:"
+      twilio_post_preview = get_sms_start_string(@client) + " sent you a post on Postcard!:"
       twilio_post_preview += "\n\n\"" + @post[:body] + "\"" if @post[:body]
-      twilio_post_preview += "\n\n[Media attached]" if @post.media
-      twilio_post_preview += "\n\n--\nDownload now: http://www.insiya.io/"
+      twilio_post_preview += "\n\n[Media attached]" if !@post.media.empty?
+      twilio_post_preview += "\n\n--\nDownload now: https://postcard.insiya.io/"
 
       sms_user_phone_numbers.uniq.each do |phone_number|
         send_twilio_sms(phone_number, twilio_post_preview)

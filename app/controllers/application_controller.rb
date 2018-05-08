@@ -75,6 +75,16 @@ class ApplicationController < ActionController::API
     end
   end
 
+  def get_sms_start_string(client)
+    if client[:full_name]
+      return "Your friend " + client[:full_name]
+    elsif client[:username]
+      return "User \"" + client[:username] + "\""
+    else
+      return "Someone"
+    end
+  end
+
   def find_or_create_contact_user(client_id, phone_number)
     def create_friendship(client_id, user)
       friendship = Friendship.new({ requester_id: client_id, requestee_id: user.id, status: 'ACCEPTED' })

@@ -54,7 +54,7 @@ class Api::GroupsController < ApplicationController
             render json: groupling.errors.full_messages, status: 422 and return
           end
 
-          send_twilio_sms(phone_number, "User \"" +  @client.username + "\" added you to a group on Postcard!\n\nDownload now: http://www.insiya.io/")
+          send_twilio_sms(phone_number, get_sms_start_string(@client) + " added you to a group on Postcard!\n\nDownload now: https://postcard.insiya.io/")
           next
         else
           render json: [contact_error], status: 422 and return
