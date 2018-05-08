@@ -18,7 +18,7 @@ json.array! @posts do |post|
   json.group_ids_with_client group_recipient_ids & @client.groups.ids
 
   json.author do
-    json.(post.author, :id, :firebase_uid, :username, :phone_number, :email, :avatar_medium_id, :is_banned, :created_at, :updated_at)
+    json.(post.author, :id, :firebase_uid, :full_name, :username, :phone_number, :email, :avatar_medium_id, :is_banned, :last_login, :created_at, :updated_at)
     json.avatar_medium Medium.find(post.author[:avatar_medium_id]) if post.author[:avatar_medium_id]
   end
 end
