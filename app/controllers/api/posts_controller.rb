@@ -169,7 +169,7 @@ class Api::PostsController < ApplicationController
       twilio_post_preview = get_sms_start_string(@client) + " sent you a post on Postcard!:"
       twilio_post_preview += "\n\n\"" + @post[:body] + "\"" if @post[:body]
       twilio_post_preview += "\n\n[Media attached]" if !@post.media.empty?
-      twilio_post_preview += "\n\n--\nDownload now: https://postcard.insiya.io/?utm_source=app&utm_term=post"
+      twilio_post_preview += "\n\n-- Download Now --\nhttps://postcard.insiya.io/?utm_source=app&utm_term=post"
 
       sms_user_phone_numbers.uniq.each do |phone_number|
         send_twilio_sms(phone_number, twilio_post_preview)

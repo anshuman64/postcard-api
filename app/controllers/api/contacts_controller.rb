@@ -42,7 +42,7 @@ class Api::ContactsController < ApplicationController
       render json: [contact_error], status: 422 and return
     end
 
-    send_twilio_sms(params[:phone_number], get_sms_start_string(client) + " invited you to join Postcard!\n\nDownload now: https://postcard.insiya.io/?utm_source=app&utm_term=invite")
+    send_twilio_sms(params[:phone_number], get_sms_start_string(client) + " invited you to join Postcard!\n\n-- Download Now --\nhttps://postcard.insiya.io/?utm_source=app&utm_term=invite")
 
     render json: {} and return
   end
