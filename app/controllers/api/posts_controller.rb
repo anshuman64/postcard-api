@@ -176,20 +176,20 @@ class Api::PostsController < ApplicationController
       end
 
       # Create pusher_post
-      pusher_post = @post.as_json
-      pusher_post[:num_likes] = @post.likes.count
-      pusher_post[:num_flags] = @post.flags.count
-      pusher_post[:media]     = @post.media
-      user_recipient_ids = @post.user_recipients.ids
-      pusher_post[:user_recipient_ids] = user_recipient_ids
-      group_recipient_ids = @post.group_recipients.ids
+      pusher_post                       = @post.as_json
+      pusher_post[:num_likes]           = @post.likes.count
+      pusher_post[:num_flags]           = @post.flags.count
+      pusher_post[:media]               = @post.media
+      user_recipient_ids                = @post.user_recipients.ids
+      pusher_post[:user_recipient_ids]  = user_recipient_ids
+      group_recipient_ids               = @post.group_recipients.ids
       pusher_post[:group_recipient_ids] = group_recipient_ids
-      pusher_post[:author] = @post.author.as_json
+      pusher_post[:author]              = @post.author.as_json
 
       User.where('id IN (?) and id != ?', pusher_user_ids.uniq, @client.id).each do |user|
-        pusher_post[:is_liked_by_client] = @post.likes.where('user_id = ?', user.id).present?
-        pusher_post[:is_flagged_by_client] = @post.flags.where('user_id = ?', user.id).present?
-        pusher_post[:user_ids_with_client] = user_recipient_ids & [user.id]
+        pusher_post[:is_liked_by_client]    = @post.likes.where('user_id = ?', user.id).present?
+        pusher_post[:is_flagged_by_client]  = @post.flags.where('user_id = ?', user.id).present?
+        pusher_post[:user_ids_with_client]  = user_recipient_ids & [user.id]
         pusher_post[:group_ids_with_client] = group_recipient_ids & user.groups.ids
 
         create_notification(@client.id, user.id, nil, @client.username + ' shared a post!', { type: 'receive-post' })

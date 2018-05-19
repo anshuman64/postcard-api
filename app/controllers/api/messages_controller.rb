@@ -105,7 +105,7 @@ class Api::MessagesController < ApplicationController
         end
       end
 
-      pusher_message = get_pusher_message(@message, @client.id)
+      pusher_message  = get_pusher_message(@message, @client.id)
       message_preview = get_message_notification_preview(@message)
 
       group.groupling_users.where('user_id != ? and firebase_uid IS NOT NULL', @client.id).each do |user|
@@ -113,7 +113,7 @@ class Api::MessagesController < ApplicationController
 
         if params[:post_id]
           # Set the correct values for is_liked_by_client/is_flagged_by_client if there is a post, but don't create a notification
-          pusher_message[:is_liked_by_client] = @message.post.likes.where('user_id = ?', user.id).present?
+          pusher_message[:is_liked_by_client]   = @message.post.likes.where('user_id = ?', user.id).present?
           pusher_message[:is_flagged_by_client] = @message.post.flags.where('user_id = ?', user.id).present?
         else
           create_notification(-1 * group.id, user.id, { en: title }, message_preview, { type: 'receive-message', group_id: group.id })
