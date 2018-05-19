@@ -42,3 +42,15 @@ eb deploy insiya-production-server-1
 10. On Elastic Beanstalk application page, click "Actions" > "Swap Environment URLs"
 11. Click "Okay"
 12. Done! Production API calls will now be routed to the new, updated environment
+
+
+### Post-Release
+1. Assuming you were on "master" branch:
+````
+git checkout stable
+git merge master
+git tag vX.Y.Z
+git push
+git push origin vX.Y.Z
+git checkout master
+````
