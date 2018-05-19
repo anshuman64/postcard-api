@@ -37,7 +37,7 @@ class ApplicationController < ActionController::API
   end
 
   # TODO: make this better for group messaging
-  def create_notification(client_id, recipient_id, title, message, data)
+  def create_notification(android_group, recipient_id, title, message, data)
     params = {
       app_id: ENV["ONE_SIGNAL_APP_ID"],
       contents: { en: message },
@@ -48,7 +48,7 @@ class ApplicationController < ActionController::API
       filters: [{"field": "tag", "key": "user_id", "relation": "=", "value": recipient_id.to_s}],
       data: data,
       headings: title,
-      android_group: client_id
+      android_group: android_group
     }
 
     begin
@@ -122,7 +122,7 @@ class ApplicationController < ActionController::API
       Pusher.trigger('private-' + user.id.to_s, pusher_type, { group: pusher_group })
 
       if pusher_type == 'receive-group'
-        create_notification(client.id, user.id, nil, client.username + ' added you to a group.', { type: pusher_type })
+        create_notification(-1 * group.id, user.id, nil, client.username + ' added you to a group.', { type: pusher_type })
       end
     end
 

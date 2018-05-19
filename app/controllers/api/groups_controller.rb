@@ -113,7 +113,7 @@ class Api::GroupsController < ApplicationController
       pusher_group[:users] = @group.groupling_users.where('user_id != ?', user.id).as_json
 
       if params[:user_ids].include?(user.id)
-        create_notification(@client.id, user.id, nil, @client.username + ' added you to a group.', { type: 'receive-group' })
+        create_notification(-1 * @group.id, user.id, nil, @client.username + ' added you to a group.', { type: 'receive-group' })
         Pusher.trigger('private-' + user.id.to_s, 'receive-group', { group: pusher_group })
       else
         Pusher.trigger('private-' + user.id.to_s, 'edit-group', { group: pusher_group })
