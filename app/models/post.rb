@@ -70,21 +70,4 @@ class Post < ApplicationRecord
     Post.where('id < ? and id IN (?) and id NOT IN (?)', start_at, posts_array, flagged_post_ids).last(limit).reverse
   end
 
-  #### BACKWARDS COMPATABILITY: START ####
-  def self.query_user_liked_posts(limit, start_at, client, user)
-    if user.blockers.where('blocker_id = ?', client.id).present?
-      return []
-    end
-
-    most_recent_post = user.liked_posts.where('author_id = ?', client.id).last
-
-    limit    ||= DEFAULT_LIMIT
-    start_at ||= (most_recent_post ? most_recent_post.id + 1 : DEFAULT_START_AT)
-
-    flagged_post_ids = client.flagged_posts.ids.count > 0 ? client.flagged_posts.ids : 0
-
-    return user.liked_posts.where('post_id < ? and (author_id = ?) and post_id NOT IN (?)', start_at, client.id, flagged_post_ids).last(limit).reverse
-  end
-  #### BACKWARDS COMPATABILITY: END ####
-
 end

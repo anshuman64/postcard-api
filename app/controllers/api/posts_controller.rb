@@ -49,22 +49,6 @@ class Api::PostsController < ApplicationController
     render 'api/posts/index'
   end
 
-  #### BACKWARDS COMPATABILITY: START ####
-  def get_user_liked_posts
-    @client, error = decode_token_and_find_user(request.headers['Authorization'])
-
-    if error
-      render json: [error], status: 401 and return
-    end
-
-    user = User.find(params[:user_id])
-
-    @posts = Post.query_user_liked_posts(params[:limit], params[:start_at], @client, user)
-
-    render 'api/posts/index'
-  end
-  #### BACKWARDS COMPATABILITY: END ####
-
   def create_post
     @client, error = decode_token_and_find_user(request.headers['Authorization'])
 
