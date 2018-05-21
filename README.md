@@ -18,7 +18,7 @@ export TWILIO_AUTH_TOKEN="Ask Anshuman for the key"
 
 ## Release
 ### Quick Release
-0. Uncomment all "Debug Test" code (Twilio SMS and OneSignal push notifications)!
+0. Uncomment all "Debug Test" code (Twilio SMS, OneSignal push notifications, and Puma queue_requests)!
 1. Make sure all code is COMMITTED to current branch
 1. Run command:
 ````
@@ -26,7 +26,7 @@ eb deploy insiya-production-server-1
 ````
 
 ### Full Release
-0. Uncomment all "Debug Test" code (Twilio SMS and OneSignal push notifications)!
+0. Uncomment all "Debug Test" code (Twilio SMS, OneSignal push notifications, and Puma queue_requests)!
 1. Log into AWS Console: https://console.aws.amazon.com/
 2. Click "Services" > "Compute" > "Elastic Beanstalk"
 3. Click "insiya-production-server-1" or "insiya-production-server-2"
