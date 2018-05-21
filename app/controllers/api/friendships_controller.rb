@@ -47,7 +47,7 @@ class Api::FriendshipsController < ApplicationController
     # TODO: make this better. Currently sends notification to client's contacts, not user's
     if params[:is_first_login]
       @users.ids.each do |user_id|
-        create_notification(@client.id, user_id, nil, 'One of your friends joined Postcard!', { type: 'welcome-contact' })
+        create_notification(@client.id, user_id, nil, 'One of your contacts joined Postcard!', { type: 'welcome-contact' })
       end
     end
 
