@@ -229,4 +229,34 @@ class Api::PostsController < ApplicationController
     end
   end
 
+  def edit_post
+    @client, error = decode_token_and_find_user(request.headers['Authorization'])
+
+    if error
+      render json: [error], status: 401 and return
+    end
+
+    @post = Post.find(params[:post_id])
+
+    unless @post
+      render json: ['Post not found'], status: 404 and return
+    end
+
+    unless @post.author == @client
+      render json: ['Unauthorized request'], status: 403 and return
+    end
+
+    if @post.update(post_params)
+      render 'api/posts/show'
+    else
+      render json: @post.errors.full_messages, status: 422
+    end
+  end
+
+  private
+
+  def post_params
+    params.permit(:body)
+  end
+
 end
